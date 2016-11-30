@@ -5,7 +5,10 @@
     <item
         android:id="@+id/action_invite_notifications"
         android:title="@string/check_invites"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"
+        android:icon="@mipmap/ic_launcher"/>
+    <!---android:icon="@drawable/ic_bell" -->
+    />
 
 
 </menu>
