@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "417448602766",
+    "firebase_url": "https://halfway-38ea3.firebaseio.com",
+    "project_id": "halfway-38ea3",
+    "storage_bucket": "halfway-38ea3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:417448602766:android:66ec065324fe6ca3",
+        "android_client_info": {
+          "package_name": "com.cs4518.halfway"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "417448602766-q4cf60d7v0arc6dn76f5ehgqaqjcsnj2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cs4518.halfway",
+            "certificate_hash": "FAA80167C0AD0E38FF97BDA38E1194A467A5EE17"
+          }
+        },
+        {
+          "client_id": "417448602766-0rlncuhf84ahsfer4oarbjevcga7ii3i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiz_xP-Dc-ICYt8QDV3VT5HOpEmulyShY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "417448602766-0rlncuhf84ahsfer4oarbjevcga7ii3i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
