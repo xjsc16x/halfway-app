@@ -3,20 +3,22 @@ package com.cs4518.halfway;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.cs4518.halfway.model.Group;
+
+import java.util.ArrayList;
+
 public class MainGroupListActivity extends AppCompatActivity {
 
-    /*
-    /** This is the list of groups the activity should be displaying
+
+    /** This is the list of groups the activity should be displaying */
     ArrayList<Group> groupList;
-    /** List Adapter which is used to show the data in a list
-    FirebaseListAdapter<Group> fireAdapter;
-    */
+    /** List Adapter which is used to show the data in a list */
+    //FirebaseListAdapter<Group> fireAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
