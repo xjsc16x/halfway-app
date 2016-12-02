@@ -1,4 +1,16 @@
 <resources>
     <string name="app_name">Halfway</string>
     <string name="check_invites">Check Invites</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="no_account">No account yet? Create one.</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="name">Name</string>
+    <string name="address">Address</string>
+    <string name="phone_num">Phone Number</string>
+    <string name="create_acct">Create Account</string>
+    <string name="already_mem">Already a member? Login.</string>
+    <string name="reenter_pass">Reenter Password</string>
 </resources>
