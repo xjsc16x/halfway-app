@@ -58,12 +58,9 @@ public class UserProfileActivity extends AppCompatActivity {
                 if (user != null) {
                     userId = user.getUid();
                     email = user.getEmail();
-                    Log.d(TAG, userId);
-                    Log.d(TAG, email);
                     _emailText.setText(email);
                     mDatabase = FirebaseDatabase.getInstance()
                             .getReference();
-                    initUser();
                     mDatabase.child(USR).child(userId).addValueEventListener(
                             new ValueEventListener() {
                                 @Override
@@ -110,35 +107,6 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    private void initUser() {
-        userListener = mDatabase.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     @Override
