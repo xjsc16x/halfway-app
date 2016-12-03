@@ -12,5 +12,7 @@
     <string name="phone_num">Phone Number</string>
     <string name="create_acct">Create Account</string>
     <string name="already_mem">Already a member? Login.</string>
-    <string name="reenter_pass">Reenter Password</string>
+    <string name="reenter_pass">Re-enter Password</string>
+    <string name="title_activity_user_profile">UserProfile</string>
+    <string name="logout">Logout</string>
 </resources>
