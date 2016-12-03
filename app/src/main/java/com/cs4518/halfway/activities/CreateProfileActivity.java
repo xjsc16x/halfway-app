@@ -45,7 +45,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         _finishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                writeNewUser(_nameText.getText().toString(), _usernameText.getText().toString()
+                writeNewUser(_usernameText.getText().toString(), _nameText.getText().toString()
                     , user.getUid());
             }
         });
