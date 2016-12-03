@@ -9,10 +9,10 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.Purple">
 
         <!-- <activity android:name=".activities.MainGroupListActivity"> -->
-        <activity android:name=".activities.UserProfile">
+        <activity android:name=".activities.UserProfileActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,6 +28,12 @@
             android:name=".activities.LoginActivity"
             android:label="@string/title_activity_sign_up"
             android:theme="@style/AppTheme.Purple" />
+        <activity
+            android:name=".activities.CreateProfileActivity"
+            android:label="@string/title_activity_create_profile"
+            android:theme="@style/AppTheme.Purple" />
+        <activity android:name=".activities.EditProfileActivity"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

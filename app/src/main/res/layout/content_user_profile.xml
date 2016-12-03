@@ -10,18 +10,25 @@
     android:paddingRight="24dp"
     android:gravity="center_horizontal"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.cs4518.halfway.activities.UserProfile"
+    tools:context="com.cs4518.halfway.activities.UserProfileActivity"
     tools:showIn="@layout/activity_user_profile">
 
-    <TextView android:id="@+id/input_name"
+    <TextView android:id="@+id/user_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="24dp"
         android:textColor="@color/white"
+        android:hint="@string/email"
         />
 
-
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/buttonEditProfile"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="@string/edit_profile"
+        android:textColor="@color/white"/>
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/buttonLogout"

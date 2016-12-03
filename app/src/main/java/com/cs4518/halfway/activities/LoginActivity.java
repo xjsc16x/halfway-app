@@ -94,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             finish();
                             startActivity(new Intent(getApplicationContext(),
-                                    UserProfile.class));
+                                    UserProfileActivity.class));
                         }
                         else {
                             Toast.makeText(getApplicationContext(),

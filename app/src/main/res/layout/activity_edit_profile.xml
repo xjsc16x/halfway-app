@@ -16,6 +16,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_user_profile" />
+    <include layout="@layout/content_edit_profile" />
 
 </LinearLayout>
