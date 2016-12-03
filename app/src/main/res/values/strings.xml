@@ -19,4 +19,6 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="finish">Finish</string>
     <string name="username">Username</string>
+    <string name="welcome">Welcome, </string>
+    <string name="at_symbol">\@</string>
 </resources>

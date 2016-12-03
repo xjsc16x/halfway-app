@@ -7,6 +7,7 @@ public class User {
     public String username;
     public String name;
     public String userId;
+    public String email;
 
     public User() {
         // Default constructor required for calls to

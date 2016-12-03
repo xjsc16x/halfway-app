@@ -50,9 +50,6 @@ public class CreateProfileActivity extends AppCompatActivity {
             }
         });
 
-
-
-
     }
 
     private void writeNewUser(String username, String name, String userId) {

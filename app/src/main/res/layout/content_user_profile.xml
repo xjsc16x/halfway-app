@@ -13,6 +13,58 @@
     tools:context="com.cs4518.halfway.activities.UserProfileActivity"
     tools:showIn="@layout/activity_user_profile">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/white"
+            android:textSize="12pt"
+            android:text="@string/welcome"
+            />
+
+        <TextView android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:textColor="@color/white"
+            android:textSize="12pt"
+            android:hint="@string/name"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:textColor="@color/white"
+            android:text="@string/at_symbol"
+            />
+
+        <TextView android:id="@+id/user_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:textColor="@color/white"
+            android:hint="@string/username"
+            />
+
+    </LinearLayout>
+
+
+
     <TextView android:id="@+id/user_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

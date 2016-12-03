@@ -26,6 +26,8 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText _reEnterPasswordText;
     private Button _signupButton;
     private TextView _loginLink;
+    private EditText _nameText;
+    private EditText _usernameText;
 
     private FirebaseAuth firebaseAuth;
 
@@ -39,6 +41,8 @@ public class SignUpActivity extends AppCompatActivity {
         _reEnterPasswordText = (EditText) findViewById(R.id.input_reEnterPassword);
         _signupButton = (Button) findViewById(R.id.btn_signup);
         _loginLink = (TextView) findViewById(R.id.link_login);
+        _nameText = (EditText) findViewById(R.id.input_name);
+        _usernameText = (EditText) findViewById(R.id.input_username);
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,6 +103,7 @@ public class SignUpActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(),
                                     "Failed to create an account",
                                     Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "FAILED");
                             _signupButton.setEnabled(true);
                         }
                         progressDialog.dismiss();
@@ -113,6 +118,22 @@ public class SignUpActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
         String reEnterPassword = _reEnterPasswordText.getText().toString();
+        String name = _nameText.getText().toString();
+        String username = _usernameText.getText().toString();
+
+        if (name.isEmpty()) {
+            _nameText.setError("Cannot be nonempty");
+            valid = false;
+        } else {
+            _nameText.setError(null);
+        }
+
+        if (username.isEmpty()) {
+            _usernameText.setError("Cannot be nonempty");
+            valid = false;
+        } else {
+            _usernameText.setError(null);
+        }
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _emailText.setError("Enter a valid email address");
