@@ -1,10 +1,7 @@
 package com.cs4518.halfway.activities;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.cs4518.halfway.R;
@@ -16,10 +13,15 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+
 public class UserProfile extends AppCompatActivity {
+    private static final String TAG = "UserProfile";
     private FirebaseAuth firebaseAuth;
 
-    private Button buttonLogout;
+    private Button _logoutButton;
+    private TextView _emailText;
+
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +34,14 @@ public class UserProfile extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
         }
 
-        FirebaseUser user = firebaseAuth.getCurrentUser();
+        user = firebaseAuth.getCurrentUser();
 
-        buttonLogout = (Button) findViewById(R.id.buttonLogout);
+        _logoutButton = (Button) findViewById(R.id.buttonLogout);
+        _emailText = (TextView) findViewById(R.id.input_name);
 
-        buttonLogout.setOnClickListener(new View.OnClickListener() {
+        _emailText.setText(user.getEmail());
+
+        _logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 firebaseAuth.signOut();
