@@ -122,7 +122,7 @@ public class SignUpActivity extends AppCompatActivity {
         }
 
         if (password.isEmpty() || password.length() < 6) {
-            _passwordText.setError("Must be at least 6 alphanumeric characters");
+            _passwordText.setError("Must be greater than 6 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
