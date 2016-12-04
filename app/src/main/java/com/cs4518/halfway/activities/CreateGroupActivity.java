@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.cs4518.halfway.R;
 
+// TODO: the implementation of adding a group to firebase
 public class CreateGroupActivity extends AppCompatActivity {
 
     @Override

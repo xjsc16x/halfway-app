@@ -33,6 +33,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="3dp"
         android:textSize="8pt"
+        android:textColor="@color/white"
         android:text="@string/members" />
 
     <android.support.design.widget.TextInputLayout
@@ -44,6 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
+            android:textColor="@color/white"
             android:hint="@string/my_location" />
     </android.support.design.widget.TextInputLayout>
 
@@ -58,8 +60,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:layout_marginLeft="3dp"
+            android:layout_marginStart="3dp"
             android:textSize="8pt"
+            android:textColor="@color/white"
             android:text="@string/use_location" />
 
         <ToggleButton
@@ -75,7 +78,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginLeft="3dp"
+        android:layout_marginStart="3dp"
+        android:textColor="@color/white"
         android:textSize="8pt"
         android:text="@string/locations_tags" />
 

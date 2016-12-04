@@ -28,4 +28,11 @@
     <string name="my_location">My Location</string>
     <string name="locations_tags">Location Tags</string>
     <string name="create_group">Create Group</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="meeting_title">Meeting Title</string>
+    <string name="would_like">would like you to join</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
