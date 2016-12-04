@@ -100,6 +100,7 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         });
 
+
         _editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

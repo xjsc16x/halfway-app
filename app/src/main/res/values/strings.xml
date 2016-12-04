@@ -21,4 +21,10 @@
     <string name="username">Username</string>
     <string name="welcome">Welcome, </string>
     <string name="at_symbol">\@</string>
+    <string name="title_activity_create_group">CreateGroupActivity</string>
+    <string name="group_name">Group Name</string>
+    <string name="members">Members</string>
+    <string name="use_location">Use my location</string>
+    <string name="my_location">My Location</string>
+    <string name="locations_tags">Location Tags:</string>
 </resources>
