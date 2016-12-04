@@ -121,14 +121,14 @@ public class SignUpActivity extends AppCompatActivity {
             _emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4) {
-            _passwordText.setError("Must be at least 4 alphanumeric characters");
+        if (password.isEmpty() || password.length() < 6) {
+            _passwordText.setError("Must be at least 6 alphanumeric characters");
             valid = false;
         } else {
             _passwordText.setError(null);
         }
 
-        if (reEnterPassword.isEmpty() || reEnterPassword.length() < 4 || !(reEnterPassword.equals(password))) {
+        if (reEnterPassword.isEmpty() || reEnterPassword.length() < 6 || !(reEnterPassword.equals(password))) {
             _reEnterPasswordText.setError("Passwords do not match");
             valid = false;
         } else {
