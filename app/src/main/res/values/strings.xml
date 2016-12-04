@@ -26,5 +26,6 @@
     <string name="members">Members</string>
     <string name="use_location">Use my location</string>
     <string name="my_location">My Location</string>
-    <string name="locations_tags">Location Tags:</string>
+    <string name="locations_tags">Location Tags</string>
+    <string name="create_group">Create Group</string>
 </resources>
