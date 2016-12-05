@@ -1,8 +1,11 @@
 package com.cs4518.halfway.model;
 
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 // TODO: Incorporate other members
 @IgnoreExtraProperties
@@ -23,5 +26,17 @@ public class Group {
         this.meetingTime = meetingTime;
         this.location = location;
         this.groupName = groupName;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("groupId", groupID);
+        result.put("creator", creator);
+        result.put("meetingTime", meetingTime);
+        result.put("location", location);
+        result.put("groupName", groupName);
+
+        return result;
     }
 }

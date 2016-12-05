@@ -34,6 +34,8 @@ import com.google.firebase.database.ValueEventListener;
 import org.w3c.dom.Text;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 // TODO: the implementation of adding a group to firebase
@@ -72,8 +74,6 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         setContentView(R.layout.activity_create_group);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        groupId = UUID.randomUUID().toString();
 
         final Calendar c = Calendar.getInstance();
         hour = c.get(Calendar.HOUR_OF_DAY);
@@ -115,7 +115,7 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                             String location = _locationText.getText().toString();
                             // TODO: implement time picker
                             if (validate()) {
-                                makeNewGroup(groupId, groupName, currentUser, meetingTime, location);
+                                makeNewGroup(groupName, currentUser, meetingTime, location);
                                 Intent intent = new Intent(getApplicationContext(), GroupActivity.class);
                                 intent.putExtra("GROUP_ID", groupId);
                                 intent.putExtra("USE_LOCATION", _useLocationToggle.isChecked());
@@ -224,17 +224,25 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
 
     /**
      * Adds a new group to Firebase
-     * @param groupId
      * @param groupName
      * @param creator currently is type User
      * @param meetingTime
      * @param location
      */
-    private void makeNewGroup(String groupId, String groupName, User creator,
+    private void makeNewGroup(String groupName, User creator,
                               String meetingTime, String location) {
+//        Group group = new Group(groupId, groupName, creator, meetingTime, location);
+//
+//        mDatabase.child(GRP).child(groupId).setValue(group);
+        groupId = mDatabase.child(GRP).push().getKey();
         Group group = new Group(groupId, groupName, creator, meetingTime, location);
+        Map<String, Object> groupValues = group.toMap();
 
-        mDatabase.child(GRP).child(groupId).setValue(group);
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/groups/" + groupId, groupValues);
+        childUpdates.put("/user-groups/" + creator.userId + "/" + groupId, groupValues);
+
+        mDatabase.updateChildren(childUpdates);
     }
 
     /**
