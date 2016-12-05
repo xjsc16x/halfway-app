@@ -115,10 +115,7 @@ public class UserProfileActivity extends AppCompatActivity {
         _createGroupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String newID = UUID.randomUUID().toString();
-                Intent intent = CreateGroupActivity.newIntent(getApplicationContext(), newID);
-                startActivity(intent);
-                //startActivity(new Intent(getApplicationContext(), CreateGroupActivity.class));
+                startActivity(new Intent(getApplicationContext(), CreateGroupActivity.class));
             }
         });
 

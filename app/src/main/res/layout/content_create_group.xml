@@ -22,7 +22,6 @@
         <EditText android:id="@+id/input_group_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
             android:hint="@string/group_name" />
     </android.support.design.widget.TextInputLayout>
 
@@ -73,15 +72,40 @@
 
     </RelativeLayout>
 
-    <TextView
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="3dp"
-        android:textColor="@color/white"
-        android:textSize="8pt"
-        android:text="@string/locations_tags" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="10dp"
+            android:textSize="8pt"
+            android:textColor="@color/white"
+            android:text="@string/meeting_time" />
+
+        <TextView
+            android:id="@+id/meeting_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="3dp"
+            android:textSize="8pt"
+            android:textColor="@color/white"
+            android:hint="@string/time_format" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_change_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:padding="12dp"
+        android:text="@string/change_time"/>
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/btn_create_group"

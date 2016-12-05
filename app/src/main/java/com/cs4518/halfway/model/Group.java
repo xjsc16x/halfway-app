@@ -4,11 +4,12 @@ import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.ArrayList;
 
+// TODO: Incorporate other members
 @IgnoreExtraProperties
 public class Group {
     public String groupID;
-    public String name;
-    public String creator;
+    public String groupName;
+    public User creator;
     public String meetingTime;
     public String location;
 
@@ -16,10 +17,11 @@ public class Group {
 
     }
 
-    public Group(String groupID, String name ,String creator, String meetingTime, String location) {
+    public Group(String groupID, String groupName, User creator, String meetingTime, String location) {
         this.groupID = groupID;
         this.creator = creator;
         this.meetingTime = meetingTime;
         this.location = location;
+        this.groupName = groupName;
     }
 }

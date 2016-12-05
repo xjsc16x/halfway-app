@@ -1,17 +1,17 @@
 package com.cs4518.halfway.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.ToggleButton;
 
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
@@ -25,12 +25,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 // TODO: the implementation of adding a group to firebase
 public class CreateGroupActivity extends AppCompatActivity {
-    private static final String EXTRA_GROUP_ID =
-            "com.bignerdranch.android.criminalintent.crime_id";
+    private static final String GRP = "groups";
+    private static final String USR = "users";
 
     private DatabaseReference mDatabase;
     private FirebaseAuth firebaseAuth;
@@ -41,17 +42,21 @@ public class CreateGroupActivity extends AppCompatActivity {
     private EditText _groupNameText;
     private EditText _membersText;
     private Button _createButton;
+    private EditText _locationText;
+    private ToggleButton _useLocationToggle;
+    private TimePicker _timePicker;
+    private Button _changeTimeButton;
+    private TextView _timeText;
+    private TextView _minuteText;
 
-    String groupId;
+    private String groupId;
     private String userId;
-    private Group _mGroup;
-    private boolean isCreator;
+    private User currentUser;
+    private String meetingTime;
 
-    public static Intent newIntent(Context packageContext, String groupId) {
-        Intent intent = new Intent(packageContext, CreateGroupActivity.class);
-        intent.putExtra(EXTRA_GROUP_ID, groupId);
-        return intent;
-    }
+    private int hour;
+    private int minute;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +65,11 @@ public class CreateGroupActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        groupId = getIntent()
-                .getStringExtra(EXTRA_GROUP_ID);
+        groupId = UUID.randomUUID().toString();
+
+        final Calendar c = Calendar.getInstance();
+        hour = c.get(Calendar.HOUR_OF_DAY);
+        minute = c.get(Calendar.MINUTE);
 
         firebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -71,16 +79,11 @@ public class CreateGroupActivity extends AppCompatActivity {
                     userId = user.getUid();
                     mDatabase = FirebaseDatabase.getInstance()
                             .getReference();
-                    /*
-                    if(_mGroup != null ){
-                        mDatabase.child("groups").child(_mGroup.groupID).addValueEventListener(
+                    mDatabase.child(USR).child(userId).addValueEventListener(
                             new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    _mGroup = dataSnapshot.getValue(Group.class);
-                                    _groupNameText.setText(_mGroup.name);
-                                    isCreator = (_mGroup.creator.equals(userId));
-                                    updateMembersText();//TODO
+                                    currentUser = dataSnapshot.getValue(User.class);
                                 }
 
                                 @Override
@@ -88,12 +91,18 @@ public class CreateGroupActivity extends AppCompatActivity {
 
                                 }
                             }
-                        );
-                    }
-                    else {
-                        makeNewGroup();
-                    }
-                    */ // this may be useful when we are editing groups but for now it is not necessary
+                    );
+
+                    _createButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String groupName = _groupNameText.getText().toString();
+                            String location = _locationText.getText().toString();
+                            // TODO: implement time picker
+                            makeNewGroup(groupId, groupName, currentUser, meetingTime, location);
+                            // TODO: finish here and redirect to the group activity
+                        }
+                    });
                 }
                 else {
                     finish();
@@ -101,24 +110,72 @@ public class CreateGroupActivity extends AppCompatActivity {
                             LoginActivity.class));
                 }
             }
+
         };
 
         _groupNameText = (EditText) findViewById(R.id.input_group_name);
         //_membersText = (EditText) findViewById(R.id.input_group_name);
         _createButton = (Button) findViewById(R.id.btn_create_group);
+        _locationText = (EditText) findViewById(R.id.input_location);
+        _useLocationToggle = (ToggleButton) findViewById(R.id.toggle_location);
 
+        _timeText = (TextView) findViewById(R.id.meeting_time);
+        _changeTimeButton = (Button) findViewById(R.id.btn_change_time);
 
-        _createButton.setOnClickListener(new View.OnClickListener() {
+        showTime(hour, minute);
+
+        _changeTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                _mGroup.name = _groupNameText.getText().toString();
-                mDatabase.child("groups").child(groupId).setValue(_mGroup);
+            public void onClick(View view) {
+                //TODO: Implement time picker fragment
             }
         });
-        //mDatabase.child("users").child(userId).setValue(user);
 
+
+        _useLocationToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                // TODO: Use location
+                if (isChecked) {
+                    String hi = "TODO: use current location";
+                    _locationText.setText(hi);
+                } else {
+                    _locationText.setText("");
+                }
+            }
+        });
     }
 
+    public void showTime(int hour, int min) {
+        String format;
+        if (hour == 0) {
+            hour += 12;
+            format = "AM";
+        } else if (hour == 12) {
+            format = "PM";
+        } else if (hour > 12) {
+            hour -= 12;
+            format = "PM";
+        } else {
+            format = "AM";
+        }
+
+        if (min < 10) {
+            StringBuilder time = new StringBuilder().append(hour).append(" : ").append("0").append(min)
+                    .append(" ").append(format);
+            _timeText.setText(time);
+            meetingTime = time.toString();
+        }
+        else {
+            StringBuilder time = new StringBuilder().append(hour).append(" : ").append(min)
+                    .append(" ").append(format);
+            _timeText.setText(time);
+            meetingTime = time.toString();
+        }
+
+
+    }
+    
     @Override
     protected void onStart() {
         super.onStart();
@@ -137,10 +194,37 @@ public class CreateGroupActivity extends AppCompatActivity {
         //TODO
     }
 
-    private static void makeNewGroup(){
-        //TODO
+    /**
+     * Adds a new group to Firebase
+     * @param groupId
+     * @param groupName
+     * @param creator currently is type User
+     * @param meetingTime
+     * @param location
+     */
+    private void makeNewGroup(String groupId, String groupName, User creator,
+                              String meetingTime, String location) {
+        Group group = new Group(groupId, groupName, creator, meetingTime, location);
+
+        mDatabase.child(GRP).child(groupId).setValue(group);
+
+        // TODO: once group is created, user should be redirected to group page
+//        Intent intent = new Intent(getApplicationContext(), UserProfileActivity.class);
+//        startActivity(intent);
+//        finish();
     }
 
+    /**
+     * Adds a user to the current group as a child in Firebase
+     *
+     * @param username
+     * @param name
+     * @param userId
+     */
+    private void addUser(String username, String name, String userId) {
+        User member = new User(username, name, userId);
 
+        mDatabase.child(GRP).child(groupId).child(userId).setValue(member);
+    }
 
 }

@@ -32,6 +32,9 @@
     <string name="decline">Decline</string>
     <string name="meeting_title">Meeting Title</string>
     <string name="would_like">would like you to join</string>
+    <string name="meeting_time">Meeting Time</string>
+    <string name="change_time">Change Time</string>
+    <string name="time_format">hh:mm</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
