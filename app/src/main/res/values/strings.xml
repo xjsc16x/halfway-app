@@ -5,23 +5,23 @@
     <string name="password">Password</string>
     <string name="email">Email</string>
     <string name="no_account">No account yet? Create one.</string>
-    <string name="title_activity_login">LoginActivity</string>
-    <string name="title_activity_sign_up">SignUpActivity</string>
-    <string name="title_activity_create_profile">CreateProfileActivity</string>
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_sign_up">Sign Up</string>
+    <string name="title_activity_create_profile">Create Profile</string>
     <string name="name">Name</string>
     <string name="address">Address</string>
     <string name="phone_num">Phone Number</string>
     <string name="create_acct">Create Account</string>
     <string name="already_mem">Already a member? Login.</string>
     <string name="reenter_pass">Re-enter Password</string>
-    <string name="title_activity_user_profile">UserProfile</string>
+    <string name="title_activity_user_profile">User Profile</string>
     <string name="logout">Logout</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="finish">Finish</string>
     <string name="username">Username</string>
     <string name="welcome">Welcome, </string>
     <string name="at_symbol">\@</string>
-    <string name="title_activity_create_group">CreateGroupActivity</string>
+    <string name="title_activity_create_group">Create Group</string>
     <string name="group_name">Group Name</string>
     <string name="members">Members</string>
     <string name="use_location">Use my location</string>
@@ -35,7 +35,9 @@
     <string name="meeting_time">Meeting Time</string>
     <string name="change_time">Change Time</string>
     <string name="time_format">hh:mm</string>
+    <string name="title_activity_group">My Group</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

@@ -22,6 +22,7 @@
         <EditText android:id="@+id/input_group_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:inputType="textCapSentences"
             android:hint="@string/group_name" />
     </android.support.design.widget.TextInputLayout>
 
@@ -43,7 +44,7 @@
         <EditText android:id="@+id/input_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textPostalAddress"
             android:textColor="@color/white"
             android:hint="@string/my_location" />
     </android.support.design.widget.TextInputLayout>

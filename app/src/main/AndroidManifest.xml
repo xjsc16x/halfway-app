@@ -39,6 +39,10 @@
             android:name=".activities.CreateGroupActivity"
             android:label="@string/title_activity_create_group"
             android:theme="@style/AppTheme.Purple" />
+        <activity
+            android:name=".activities.GroupActivity"
+            android:label="@string/title_activity_group"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

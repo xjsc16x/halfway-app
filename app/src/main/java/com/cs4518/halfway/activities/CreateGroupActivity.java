@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.cs4518.halfway.R;
@@ -24,6 +26,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.w3c.dom.Text;
 
 import java.util.Calendar;
 import java.util.UUID;
@@ -44,18 +48,16 @@ public class CreateGroupActivity extends AppCompatActivity {
     private Button _createButton;
     private EditText _locationText;
     private ToggleButton _useLocationToggle;
-    private TimePicker _timePicker;
     private Button _changeTimeButton;
     private TextView _timeText;
-    private TextView _minuteText;
 
     private String groupId;
     private String userId;
     private User currentUser;
     private String meetingTime;
 
-    private int hour;
     private int minute;
+    private int hour;
 
 
     @Override
@@ -99,8 +101,17 @@ public class CreateGroupActivity extends AppCompatActivity {
                             String groupName = _groupNameText.getText().toString();
                             String location = _locationText.getText().toString();
                             // TODO: implement time picker
-                            makeNewGroup(groupId, groupName, currentUser, meetingTime, location);
-                            // TODO: finish here and redirect to the group activity
+                            if (validate()) {
+                                makeNewGroup(groupId, groupName, currentUser, meetingTime, location);
+                                Intent intent = new Intent(getApplicationContext(), GroupActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                            else {
+                                Toast.makeText(getApplicationContext(),
+                                        "Failed to create group",
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
@@ -175,7 +186,7 @@ public class CreateGroupActivity extends AppCompatActivity {
 
 
     }
-    
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -207,11 +218,6 @@ public class CreateGroupActivity extends AppCompatActivity {
         Group group = new Group(groupId, groupName, creator, meetingTime, location);
 
         mDatabase.child(GRP).child(groupId).setValue(group);
-
-        // TODO: once group is created, user should be redirected to group page
-//        Intent intent = new Intent(getApplicationContext(), UserProfileActivity.class);
-//        startActivity(intent);
-//        finish();
     }
 
     /**
@@ -225,6 +231,29 @@ public class CreateGroupActivity extends AppCompatActivity {
         User member = new User(username, name, userId);
 
         mDatabase.child(GRP).child(groupId).child(userId).setValue(member);
+    }
+
+    public boolean validate() {
+        boolean valid = true;
+
+        String groupName = _groupNameText.getText().toString();
+        String location = _locationText.getText().toString();
+
+        if (TextUtils.isEmpty(groupName)) {
+            _groupNameText.setError("Enter a group name");
+            valid = false;
+        } else {
+            _groupNameText.setError(null);
+        }
+
+        if (TextUtils.isEmpty(location)) {
+            _locationText.setError("Enter a location");
+            valid = false;
+        } else {
+            _locationText.setError(null);
+        }
+
+        return valid;
     }
 
 }
