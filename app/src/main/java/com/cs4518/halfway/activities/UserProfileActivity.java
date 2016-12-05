@@ -79,6 +79,8 @@ public class UserProfileActivity extends AppCompatActivity {
                                 }
                             }
                     );
+
+
                 }
                 else {
                     finish();
