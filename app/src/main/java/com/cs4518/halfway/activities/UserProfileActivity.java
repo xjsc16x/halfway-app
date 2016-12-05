@@ -22,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.UUID;
+
 
 public class UserProfileActivity extends AppCompatActivity {
     private static final String TAG = "UserProfileActivity";
@@ -113,7 +115,10 @@ public class UserProfileActivity extends AppCompatActivity {
         _createGroupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), CreateGroupActivity.class));
+                String newID = UUID.randomUUID().toString();
+                Intent intent = CreateGroupActivity.newIntent(getApplicationContext(), newID);
+                startActivity(intent);
+                //startActivity(new Intent(getApplicationContext(), CreateGroupActivity.class));
             }
         });
 

@@ -96,12 +96,11 @@ public class GroupListFragment extends Fragment{
         }
 
         public void bindGroup(Group group) {
-            /*
             mGroup = group;
-            mTitleTextView.setText(mGroup.getTitle());
-            mDateTextView.setText(mGroup.getDate().toString());
-            mSolvedCheckBox.setChecked(mGroup.isSolved());
-            */ //I think this will be made irrellevant by firebase
+            mTitleTextView.setText(mGroup.name);
+            mDateTextView.setText(mGroup.creator);
+            //mSolvedCheckBox.setChecked(mGroup.isSolved());
+             //I think this will be made irrellevant by firebase
         }
 
         @Override

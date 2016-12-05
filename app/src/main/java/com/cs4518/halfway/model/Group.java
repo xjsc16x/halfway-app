@@ -6,8 +6,9 @@ import java.util.ArrayList;
 
 @IgnoreExtraProperties
 public class Group {
-    public int groupID;
-    public String creater;
+    public String groupID;
+    public String name;
+    public String creator;
     public String meetingTime;
     public String location;
 
@@ -15,9 +16,9 @@ public class Group {
 
     }
 
-    public Group(int groupID, String name, String meetingTime, String location) {
+    public Group(String groupID, String name ,String creator, String meetingTime, String location) {
         this.groupID = groupID;
-        this.creater = name;
+        this.creator = creator;
         this.meetingTime = meetingTime;
         this.location = location;
     }
