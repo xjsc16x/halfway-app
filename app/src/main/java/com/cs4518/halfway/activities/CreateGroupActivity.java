@@ -104,6 +104,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                             if (validate()) {
                                 makeNewGroup(groupId, groupName, currentUser, meetingTime, location);
                                 Intent intent = new Intent(getApplicationContext(), GroupActivity.class);
+                                intent.putExtra("GROUP_ID", groupId);
+                                intent.putExtra("USE_LOCATION", _useLocationToggle.isChecked());
                                 startActivity(intent);
                                 finish();
                             }

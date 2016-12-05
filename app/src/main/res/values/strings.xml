@@ -36,6 +36,8 @@
     <string name="change_time">Change Time</string>
     <string name="time_format">hh:mm</string>
     <string name="title_activity_group">My Group</string>
+    <string name="meeting_places">Meeting Places</string>
+    <string name="my_groups">My Groups</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

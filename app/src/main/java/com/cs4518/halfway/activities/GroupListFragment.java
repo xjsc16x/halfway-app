@@ -97,8 +97,13 @@ public class GroupListFragment extends Fragment{
 
         public void bindGroup(Group group) {
             mGroup = group;
+
+//            mTitleTextView.setText(mGroup.name);
+//            mDateTextView.setText(mGroup.creator);
             mTitleTextView.setText(mGroup.groupName);
-            mDateTextView.setText(mGroup.creator.name);
+            String creator = "DEFAULT";
+            mDateTextView.setText(creator);
+
             //mSolvedCheckBox.setChecked(mGroup.isSolved());
              //I think this will be made irrellevant by firebase
         }
