@@ -37,6 +37,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private Button _editProfileButton;
     private TextView _usernameText;
     private TextView _nameText;
+    private Button _myGroupsButton;
 
     private String userId;
     private String email;
@@ -96,6 +97,7 @@ public class UserProfileActivity extends AppCompatActivity {
         _nameText = (TextView) findViewById(R.id.user_name);
         _usernameText = (TextView) findViewById(R.id.user_username);
         _createGroupBtn = (Button) findViewById(R.id.buttonCreateGroup);
+        _myGroupsButton = (Button) findViewById(R.id.buttonMyGroups);
 
         _logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
