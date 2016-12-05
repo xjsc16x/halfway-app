@@ -45,7 +45,10 @@
             android:name=".activities.GroupActivity"
             android:label="@string/title_activity_group"
             android:theme="@style/AppTheme.NoActionBar"></activity>
-
+        <activity
+            android:name=".activities.GroupListActivity"
+            android:label="@string/title_activity_create_group"
+            android:theme="@style/AppTheme.Purple" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDyBvCTnNb-vFUtkGVme_tTeNhUPApqbic"/>

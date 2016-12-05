@@ -123,6 +123,13 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         });
 
+        _myGroupsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), GroupListActivity.class));
+            }
+        });
+
     }
 
     @Override
