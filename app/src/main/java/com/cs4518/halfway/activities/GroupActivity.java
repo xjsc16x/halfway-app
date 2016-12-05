@@ -17,6 +17,9 @@ import android.widget.ToggleButton;
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.User;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -26,7 +29,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class GroupActivity extends AppCompatActivity {
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+
+
+public class GroupActivity extends AppCompatActivity implements OnConnectionFailedListener{
     private static final String GRP = "groups";
 
     private TextView groupNameText;
@@ -43,6 +50,8 @@ public class GroupActivity extends AppCompatActivity {
     private ChildEventListener groupListener;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
+    private GoogleApiClient mGoogleApiClient;
+
     private String userId;
     private String groupId;
     private boolean useLocation;
@@ -52,9 +61,17 @@ public class GroupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_group);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .enableAutoManage(this, this)
+                .build();
 
         firebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -111,6 +128,13 @@ public class GroupActivity extends AppCompatActivity {
         useLocationToggle.setChecked(useLocation);
     }
 
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+
+
+        //TODO
+    }
 
     @Override
     protected void onStart() {
