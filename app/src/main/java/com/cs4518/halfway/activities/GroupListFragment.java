@@ -4,6 +4,7 @@ package com.cs4518.halfway.activities;
  * Created by Silo on 12/3/16.
  */
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -122,6 +123,8 @@ public class GroupListFragment extends Fragment{
     public static class GroupHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
+        private final Context context;
+
         private TextView mTitleTextView;
         private TextView mDateTextView;
 
@@ -130,6 +133,7 @@ public class GroupListFragment extends Fragment{
         public GroupHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
+            context = itemView.getContext();
 
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_group_title_text_view);
             mDateTextView = (TextView) itemView.findViewById(R.id.list_item_group_date_text_view);
@@ -143,9 +147,11 @@ public class GroupListFragment extends Fragment{
 
         @Override
         public void onClick(View v) {
-            //This may be a problem, Can't call getActivity() or startActivity() because this holder is static.
-            //Intent intent = GroupCreationActivity.newIntent(getActivity());
-            //startActivity(intent);
+            /*
+            //This opens a new intent of GroupActivity
+            Intent intent =  new Intent(context, GroupActivity.class);
+            context.startActivity(intent);
+            */
         }
     }
 
