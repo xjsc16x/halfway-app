@@ -18,6 +18,10 @@ import android.widget.ToggleButton;
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.User;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -33,7 +37,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 // TODO: the implementation of adding a group to firebase
-public class CreateGroupActivity extends AppCompatActivity {
+public class CreateGroupActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     private static final String GRP = "groups";
     private static final String USR = "users";
 
@@ -42,6 +46,8 @@ public class CreateGroupActivity extends AppCompatActivity {
     private FirebaseUser user;
     private ChildEventListener userListener;
     private FirebaseAuth.AuthStateListener mAuthListener;
+
+    private GoogleApiClient mGoogleApiClient;
 
     private EditText _groupNameText;
     private EditText _membersText;
@@ -72,6 +78,13 @@ public class CreateGroupActivity extends AppCompatActivity {
         final Calendar c = Calendar.getInstance();
         hour = c.get(Calendar.HOUR_OF_DAY);
         minute = c.get(Calendar.MINUTE);
+
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(LocationServices.API)
+                .enableAutoManage(this, this)
+                .build();
 
         firebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -192,12 +205,14 @@ public class CreateGroupActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        mGoogleApiClient.connect();
         firebaseAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        mGoogleApiClient.disconnect();
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
         }
@@ -256,6 +271,10 @@ public class CreateGroupActivity extends AppCompatActivity {
         }
 
         return valid;
+    }
+
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        //TODO
     }
 
 }

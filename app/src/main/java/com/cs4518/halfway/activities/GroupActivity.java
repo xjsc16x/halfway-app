@@ -19,6 +19,7 @@ import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.User;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -70,6 +71,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
+                .addApi(LocationServices.API)
                 .enableAutoManage(this, this)
                 .build();
 
@@ -140,11 +142,13 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     protected void onStart() {
         super.onStart();
         firebaseAuth.addAuthStateListener(mAuthListener);
+        mGoogleApiClient.connect();
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        mGoogleApiClient.disconnect();
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
         }
