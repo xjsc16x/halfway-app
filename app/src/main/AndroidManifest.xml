@@ -43,6 +43,11 @@
             android:name=".activities.GroupActivity"
             android:label="@string/title_activity_group"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDyBvCTnNb-vFUtkGVme_tTeNhUPApqbic"/>
+
     </application>
 
 </manifest>
