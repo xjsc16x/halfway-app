@@ -18,15 +18,25 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
 
+/**
+ * Activity for creating a new account
+ */
 public class SignUpActivity extends AppCompatActivity {
+    /**
+     * Tag for logging
+     */
     private static final String TAG = "SignUpActivity";
 
+    // Views
     private EditText _emailText;
     private EditText _passwordText;
     private EditText _reEnterPasswordText;
     private Button _signupButton;
     private TextView _loginLink;
 
+    /**
+     * Database connection
+     */
     private FirebaseAuth firebaseAuth;
 
     @Override
@@ -51,7 +61,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Finish the registration screen and return to the Login activity
-                Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
                 finish();
                 overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
@@ -61,7 +71,12 @@ public class SignUpActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
-    public void signup() {
+    /**
+     * Called when the sign-up button is pressed.
+     * <p>
+     * Validates input, and then attempts to create an online account through {@link #firebaseAuth}.
+     */
+    protected void signup() {
         Log.d(TAG, "Signup");
 
         if (!validate()) {
@@ -94,8 +109,7 @@ public class SignUpActivity extends AppCompatActivity {
                             Intent intent = new Intent(getApplicationContext(), CreateProfileActivity.class);
                             startActivity(intent);
                             finish();
-                        }
-                        else {
+                        } else {
                             Toast.makeText(getApplicationContext(),
                                     "Failed to create an account",
                                     Toast.LENGTH_LONG).show();
@@ -107,6 +121,11 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Confirms that entered text is plausible for creating an account. Also verifies both passwords are the same.
+     *
+     * @return True if all entered text is valid.
+     */
     public boolean validate() {
         boolean valid = true;
 

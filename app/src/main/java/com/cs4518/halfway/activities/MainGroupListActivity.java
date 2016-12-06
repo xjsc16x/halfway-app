@@ -16,6 +16,9 @@ import com.cs4518.halfway.model.Group;
 
 import java.util.ArrayList;
 
+/**
+ * @deprecated This is for reference only and is the old template for activities.
+ */
 public class MainGroupListActivity extends AppCompatActivity {
 
 
