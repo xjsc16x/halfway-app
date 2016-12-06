@@ -1,5 +1,6 @@
 package com.cs4518.halfway.activities;
 
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -32,6 +34,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class GroupActivity extends AppCompatActivity implements OnConnectionFailedListener{
@@ -58,6 +64,10 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private boolean useLocation;
 
     private Group currentGroup;
+
+    private int hour;
+    private int minute;
+    private String meetingTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +113,13 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
                                         changeTimeButton = (Button) findViewById(R.id.btn_change_time);
                                         changeTimeButton.setVisibility(View.VISIBLE);
+                                        changeTimeButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                openTimeDialog();
+                                                updateTime(hour, minute);
+                                            }
+                                        });
                                     }
                                 }
 
@@ -128,13 +145,62 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         meetingTimeText = (TextView) findViewById(R.id.meeting_time);
 
         useLocationToggle.setChecked(useLocation);
+
+        final Calendar c = Calendar.getInstance();
+        hour = c.get(Calendar.HOUR_OF_DAY);
+        minute = c.get(Calendar.MINUTE);
+    }
+
+    public void openTimeDialog() {
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                new TimePickerDialog.OnTimeSetListener() {
+
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay,
+                                          int minute) {
+
+                        updateTime(hourOfDay, minute);
+                    }
+                }, hour, minute, false);
+        timePickerDialog.show();
+    }
+
+    public void updateTime(int hour, int minute) {
+        this.hour = hour;
+        this.minute = minute;
+
+        String format;
+        if (hour == 0) {
+            hour += 12;
+            format = "AM";
+        } else if (hour == 12) {
+            format = "PM";
+        } else if (hour > 12) {
+            hour -= 12;
+            format = "PM";
+        } else {
+            format = "AM";
+        }
+
+        if (minute < 10) {
+            meetingTime = hour + " : 0" + minute + " " + format;
+        } else {
+            meetingTime = hour + " : " + minute + " " + format;
+        }
+
+        Group group = new Group(currentGroup.groupID, currentGroup.groupName,
+                currentGroup.creator, meetingTime, currentGroup.location);
+        Map<String, Object> groupValues = group.toMap();
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/groups/" + groupId, groupValues);
+        childUpdates.put("/user-groups/" + userId + "/" + groupId, groupValues);
+
+        mDatabase.updateChildren(childUpdates);
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
-
-
         //TODO
     }
 

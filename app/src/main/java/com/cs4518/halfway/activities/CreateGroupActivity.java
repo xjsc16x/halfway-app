@@ -1,5 +1,6 @@
 package com.cs4518.halfway.activities;
 
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -157,7 +158,7 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         _changeTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: Implement time picker fragment
+                openTimeDialog();
             }
         });
 
@@ -176,7 +177,24 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         });
     }
 
+    public void openTimeDialog() {
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                new TimePickerDialog.OnTimeSetListener() {
+
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay,
+                                          int minute) {
+
+                        showTime(hourOfDay, minute);
+                    }
+                }, hour, minute, false);
+        timePickerDialog.show();
+    }
+
     public void showTime(int hour, int min) {
+        this.hour = hour;
+        minute = min;
+
         String format;
         if (hour == 0) {
             hour += 12;
