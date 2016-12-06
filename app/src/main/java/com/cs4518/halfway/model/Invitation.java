@@ -1,25 +1,34 @@
 package com.cs4518.halfway.model;
 
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @IgnoreExtraProperties
 public class Invitation {
-    public int groupId;
+    public String groupId;
     public String userId;
-    // might need to be String because
-    // JSON doesn't support DateTime type
-    // could try with DateTime
-    public String sent;
-    public boolean accepted;
+    public String invitationId;
 
     public Invitation() {
 
     }
 
-    public Invitation(int groupId, String userId, String sent, boolean accepted) {
+    public Invitation(String invitationId, String groupId, String userId) {
         this.groupId = groupId;
         this.userId = userId;
-        this.sent = sent;
-        this.accepted = accepted;
+        this.invitationId = invitationId;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("groupId", groupId);
+        result.put("userId", userId);
+        result.put("invitationId", invitationId);
+
+        return result;
     }
 }

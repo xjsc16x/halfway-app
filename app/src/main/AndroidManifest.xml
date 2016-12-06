@@ -13,7 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- <activity android:name=".activities.MainGroupListActivity"> -->
         <activity android:name=".activities.UserProfileActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,6 +48,12 @@
             android:name=".activities.GroupListActivity"
             android:label="@string/title_activity_create_group"
             android:theme="@style/AppTheme.Purple" />
+
+        <activity
+            android:name=".activities.InvitationListActivity"
+            android:label="@string/my_invites"
+            android:theme="@style/AppTheme.Purple" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDyBvCTnNb-vFUtkGVme_tTeNhUPApqbic"/>
