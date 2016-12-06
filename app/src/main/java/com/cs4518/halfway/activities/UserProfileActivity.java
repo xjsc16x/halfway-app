@@ -38,6 +38,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private TextView _usernameText;
     private TextView _nameText;
     private Button _myGroupsButton;
+    private Button _myInvitesButton;
 
     private String userId;
     private String email;
@@ -98,6 +99,7 @@ public class UserProfileActivity extends AppCompatActivity {
         _usernameText = (TextView) findViewById(R.id.user_username);
         _createGroupBtn = (Button) findViewById(R.id.buttonCreateGroup);
         _myGroupsButton = (Button) findViewById(R.id.buttonMyGroups);
+        _myInvitesButton = (Button) findViewById(R.id.buttonPendingInvites);
 
         _logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +132,12 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         });
 
+        _myInvitesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), InvitationListActivity.class));
+            }
+        });
     }
 
     @Override

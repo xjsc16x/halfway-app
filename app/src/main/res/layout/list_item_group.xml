@@ -2,7 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
 
     <!--
     <CheckBox
@@ -16,17 +18,20 @@
         android:id="@+id/list_item_group_title_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:textStyle="bold"
-        tools:text="Group Title"
-        android:padding="4dp"/>
+        android:hint="@string/group_name"
+        android:textSize="10pt"
+        android:layout_marginStart="15dp" />
 
     <TextView
         android:id="@+id/list_item_group_date_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/list_item_group_title_text_view"
-        tools:text="Group Date"
-        android:padding="4dp"/>
+        tools:hint="Group Date"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="15dp"
+        android:textSize="8pt"/>
 
 </RelativeLayout>

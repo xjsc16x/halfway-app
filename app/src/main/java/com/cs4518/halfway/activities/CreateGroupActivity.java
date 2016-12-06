@@ -17,6 +17,7 @@ import android.widget.ToggleButton;
 
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
+import com.cs4518.halfway.model.Invitation;
 import com.cs4518.halfway.model.User;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -42,6 +43,7 @@ import java.util.UUID;
 public class CreateGroupActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
     private static final String GRP = "groups";
     private static final String USR = "users";
+    private static final String INV = "invitations";
 
     private DatabaseReference mDatabase;
     private FirebaseAuth firebaseAuth;
@@ -61,6 +63,7 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
 
     private String groupId;
     private String userId;
+    private String invitationId;
     private User currentUser;
     private String meetingTime;
 
@@ -116,6 +119,7 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                             // TODO: implement time picker
                             if (validate()) {
                                 makeNewGroup(groupName, currentUser, meetingTime, location);
+                                sendInvitations(currentUser.name, groupName);
                                 Intent intent = new Intent(getApplicationContext(), GroupActivity.class);
                                 intent.putExtra("GROUP_ID", groupId);
                                 intent.putExtra("USE_LOCATION", _useLocationToggle.isChecked());
@@ -241,6 +245,19 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/groups/" + groupId, groupValues);
         childUpdates.put("/user-groups/" + creator.userId + "/" + groupId, groupValues);
+
+        mDatabase.updateChildren(childUpdates);
+    }
+
+    // TODO: send invites to all members and not creator
+    private void sendInvitations(String creator, String groupName) {
+        invitationId = mDatabase.child(INV).push().getKey();
+        Invitation invitation = new Invitation(invitationId, groupId, userId, groupName, creator);
+        Map<String, Object> invitationValues = invitation.toMap();
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/invitations/" + invitationId, invitationValues);
+        childUpdates.put("/user-invites/" + userId + "/" + invitationId, invitationValues);
 
         mDatabase.updateChildren(childUpdates);
     }
