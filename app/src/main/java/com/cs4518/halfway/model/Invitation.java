@@ -10,16 +10,20 @@ import java.util.Map;
 public class Invitation {
     public String groupId;
     public String userId;
+    public String creator;
+    public String groupName;
     public String invitationId;
 
     public Invitation() {
 
     }
 
-    public Invitation(String invitationId, String groupId, String userId) {
+    public Invitation(String invitationId, String groupId, String userId, String groupName, String creator) {
         this.groupId = groupId;
         this.userId = userId;
         this.invitationId = invitationId;
+        this.groupName = groupName;
+        this.creator = creator;
     }
 
     @Exclude
@@ -28,6 +32,8 @@ public class Invitation {
         result.put("groupId", groupId);
         result.put("userId", userId);
         result.put("invitationId", invitationId);
+        result.put("creator", creator);
+        result.put("groupName", groupName);
 
         return result;
     }

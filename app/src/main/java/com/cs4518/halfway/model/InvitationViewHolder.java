@@ -25,8 +25,8 @@ public class InvitationViewHolder extends RecyclerView.ViewHolder {
     public void bindInvitation(Invitation mInvitation,
                                View.OnClickListener acceptClickListener,
                                View.OnClickListener declineClickListener) {
-        mCreatorTextView.setText(mInvitation.userId);
-        mGroupNameTextView.setText(mInvitation.groupId);
+        mCreatorTextView.setText(mInvitation.creator);
+        mGroupNameTextView.setText(mInvitation.groupName);
         mAcceptButton.setOnClickListener(acceptClickListener);
         mDeclineButton.setOnClickListener(declineClickListener);
     }

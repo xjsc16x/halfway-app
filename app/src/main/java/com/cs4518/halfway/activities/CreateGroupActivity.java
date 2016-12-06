@@ -119,7 +119,7 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                             // TODO: implement time picker
                             if (validate()) {
                                 makeNewGroup(groupName, currentUser, meetingTime, location);
-                                sendInvitations();
+                                sendInvitations(currentUser.name, groupName);
                                 Intent intent = new Intent(getApplicationContext(), GroupActivity.class);
                                 intent.putExtra("GROUP_ID", groupId);
                                 intent.putExtra("USE_LOCATION", _useLocationToggle.isChecked());
@@ -250,9 +250,9 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
     }
 
     // TODO: send invites to all members and not creator
-    private void sendInvitations() {
+    private void sendInvitations(String creator, String groupName) {
         invitationId = mDatabase.child(INV).push().getKey();
-        Invitation invitation = new Invitation(invitationId, groupId, userId);
+        Invitation invitation = new Invitation(invitationId, groupId, userId, groupName, creator);
         Map<String, Object> invitationValues = invitation.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
