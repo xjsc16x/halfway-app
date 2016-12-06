@@ -18,6 +18,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class InvitationListFragment extends Fragment {
     private static final String TAG ="InvitationListFragment";
 
@@ -66,31 +69,31 @@ public class InvitationListFragment extends Fragment {
 
             @Override
             protected void populateViewHolder(final InvitationViewHolder viewHolder, final Invitation model, final int position) {
-                final DatabaseReference postRef = getRef(position);
+                final DatabaseReference invitationRef = getRef(position);
 
-                // Set click listener for the whole post view
-                final String invitationId = postRef.getKey();
-                // TODO: This is a bug, need to find way to access groupId using invitationId
-//                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        // Launch PostDetailActivity
-//                        Intent intent = new Intent(getActivity(), GroupActivity.class);
-//                        intent.putExtra("GROUP_ID", groupId);
-//                        startActivity(intent);
-//                    }
-//                });
+                final String invitationId = invitationRef.getKey();
 
-                // Bind Post to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindInvitation(model, new View.OnClickListener() {
                     @Override
                     public void onClick(View starView) {
-                        // TODO: What to do when click accept
+                        Intent intent = new Intent(getActivity(), GroupActivity.class);
+                        intent.putExtra("GROUP_ID", model.groupId);
+                        Map<String, Object> childUpdates = new HashMap<>();
+                        childUpdates.put("/invitations/" + invitationId, null);
+                        childUpdates.put("/user-invites/" + model.userId + "/" + invitationId, null);
+
+                        mDatabase.updateChildren(childUpdates);
+                        startActivity(intent);
                     }
                 }, new View.OnClickListener() {
                     @Override
                     public void onClick(View starView) {
-                        // TODO: What to do when click decline
+
+                        Map<String, Object> childUpdates = new HashMap<>();
+                        childUpdates.put("/invitations/" + invitationId, null);
+                        childUpdates.put("/user-invites/" + model.userId + "/" + invitationId, null);
+
+                        mDatabase.updateChildren(childUpdates);
                     }
                 });
             }
