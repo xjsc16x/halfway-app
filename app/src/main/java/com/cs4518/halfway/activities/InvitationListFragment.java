@@ -69,16 +69,17 @@ public class InvitationListFragment extends Fragment {
                 final DatabaseReference postRef = getRef(position);
 
                 // Set click listener for the whole post view
-                final String groupId = postRef.getKey();
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Launch PostDetailActivity
-                        Intent intent = new Intent(getActivity(), GroupActivity.class);
-                        intent.putExtra("GROUP_ID", groupId);
-                        startActivity(intent);
-                    }
-                });
+                final String invitationId = postRef.getKey();
+                // TODO: This is a bug, need to find way to access groupId using invitationId
+//                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        // Launch PostDetailActivity
+//                        Intent intent = new Intent(getActivity(), GroupActivity.class);
+//                        intent.putExtra("GROUP_ID", groupId);
+//                        startActivity(intent);
+//                    }
+//                });
 
                 // Bind Post to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindInvitation(model, new View.OnClickListener() {
