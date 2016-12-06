@@ -20,16 +20,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
 
-/**
- * Activity for login screen. Contains a link to (@link #SignUpActivityUp) activity is user doesn't have an account.
- */
 public class LoginActivity extends AppCompatActivity {
-    /**
-     * Tag debugger logs
-     */
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-
 
     private EditText _emailText;
     private EditText _passwordText;
@@ -72,10 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
-    /**
-     * Validates log-in text is entered, then verifies username and password using {@link #firebaseAuth}.
-     */
-    protected void login() {
+    public void login() {
         Log.d(TAG, "Login");
 
         if (!validate()) {
@@ -105,7 +95,8 @@ public class LoginActivity extends AppCompatActivity {
                             finish();
                             startActivity(new Intent(getApplicationContext(),
                                     UserProfileActivity.class));
-                        } else {
+                        }
+                        else {
                             Toast.makeText(getApplicationContext(),
                                     "Failed to login",
                                     Toast.LENGTH_LONG).show();
@@ -122,11 +113,7 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    /**
-     * Determines if login information is a plausible log-in.
-     * @return True if the log-in info looks valid.
-     */
-    private boolean validate() {
+    public boolean validate() {
         boolean valid = true;
 
         String email = _emailText.getText().toString();
