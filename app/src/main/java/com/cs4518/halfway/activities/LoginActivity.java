@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cs4518.halfway.controllers.LoginController;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,13 +31,11 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
 
-
     private EditText _emailText;
     private EditText _passwordText;
     private Button _loginButton;
     private TextView _signupLink;
 
-    private FirebaseAuth firebaseAuth;
 
     /**
      * Rotating circle that displays when authenticating username log-in
@@ -53,13 +52,7 @@ public class LoginActivity extends AppCompatActivity {
         _loginButton = (Button) findViewById(R.id.btn_login);
         _signupLink = (TextView) findViewById(R.id.link_signup);
 
-        _loginButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                login();
-            }
-        });
+        _loginButton.setOnClickListener(new LoginController(this));
 
         _signupLink.setOnClickListener(new View.OnClickListener() {
 
@@ -74,58 +67,38 @@ public class LoginActivity extends AppCompatActivity {
 
         });
 
-        firebaseAuth = FirebaseAuth.getInstance();
     }
 
     /**
-     * Validates log-in text is entered, then verifies username and password using {@link #firebaseAuth}.
+     * Displays progress dialog and disables the log-in button.
+     * <p>
+     * Will continue until stopped by {@link #stopProgressDialog()}
      */
-    protected void login() {
-        Log.d(TAG, "Login");
-
-        if (!validate()) {
-            Toast.makeText(getApplicationContext(),
-                    "Failed to login",
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-
+    public void showProgressDialog() {
         _loginButton.setEnabled(false);
-
-        showProgressDialog();
-
-        String email = getEmailText();
-        String password = getPasswordText();
-
-        firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressDialog.dismiss();
-                        if (task.isSuccessful()) {
-                            finish();
-                            startActivity(new Intent(getApplicationContext(),
-                                    UserProfileActivity.class));
-                        } else {
-                            Toast.makeText(getApplicationContext(),
-                                    "Failed to login",
-                                    Toast.LENGTH_LONG).show();
-                            _loginButton.setEnabled(true);
-                        }
-                    }
-                });
-
-    }
-
-    /**
-     * Displays a never ending progress dialog
-     */
-    private void showProgressDialog() {
         progressDialog = new ProgressDialog(LoginActivity.this,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
+    }
+
+    /**
+     * Removes the progress dialog and re-enables the log-in button.
+     */
+    public void stopProgressDialog() {
+        progressDialog.dismiss();
+        _loginButton.setEnabled(true);
+    }
+
+
+    /**
+     * Displays a toast message notifying user log-in failed
+     */
+    public void showFailedToLoginToast() {
+        Toast.makeText(getApplicationContext(),
+                "Failed to login",
+                Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -135,31 +108,17 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Determines if login information is a plausible log-in.
-     *
-     * @return True if the log-in info looks valid.
+     * Calls {@link TextView#setError(CharSequence)} on the email text field.
      */
-    private boolean validate() {
-        boolean valid = true;
+    public void setEmailErrorText(String errorText) {
+        _emailText.setError(errorText);
+    }
 
-        String email = getEmailText();
-        String password = getPasswordText();
-
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailText.setError("Enter a valid email address");
-            valid = false;
-        } else {
-            _emailText.setError(null);
-        }
-
-        if (password.isEmpty() || password.length() < 6) {
-            _passwordText.setError("Must be greater than 6 alphanumeric characters");
-            valid = false;
-        } else {
-            _passwordText.setError(null);
-        }
-
-        return valid;
+    /**
+     * Calls {@link TextView#setError(CharSequence)} on the password text field.
+     */
+    public void setPasswordErrorText(String errorText) {
+        _passwordText.setError(errorText);
     }
 
     /**
@@ -167,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
      *
      * @return The text entered in password field
      */
-    private String getPasswordText() {
+    public String getPasswordText() {
         return _passwordText.getText().toString();
     }
 
@@ -179,6 +138,8 @@ public class LoginActivity extends AppCompatActivity {
     public String getEmailText() {
         return _emailText.getText().toString();
     }
+
+
 }
 
 
