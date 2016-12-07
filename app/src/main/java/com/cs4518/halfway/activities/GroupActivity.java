@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -44,6 +45,7 @@ import java.util.Map;
 
 public class GroupActivity extends AppCompatActivity implements OnConnectionFailedListener{
     private static final String GRP = "groups";
+    private static final String TAG = "GroupActivity";
 
     private TextView groupNameText;
     private EditText locationText;
@@ -113,6 +115,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                     groupNameText.setText(currentGroup.groupName);
                                     locationText.setText(currentGroup.location);
                                     meetingTimeText.setText(currentGroup.meetingTime);
+                                    meetingDateText.setText(currentGroup.meetingDate);
 
                                     if (user.getUid().equals(currentGroup.creator.userId)) {
 
@@ -122,7 +125,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                             @Override
                                             public void onClick(View view) {
                                                 openTimeDialog();
-                                                updateTime(hour, minute);
+                                                updateDatabase();
                                             }
                                         });
 
@@ -162,12 +165,6 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         useLocationToggle.setChecked(useLocation);
 
-        final Calendar c = Calendar.getInstance();
-        hour = c.get(Calendar.HOUR_OF_DAY);
-        minute = c.get(Calendar.MINUTE);
-        year = c.get(Calendar.YEAR);
-        month = c.get(Calendar.MONTH);
-        day = c.get(Calendar.DAY_OF_MONTH);
     }
 
     public void openTimeDialog() {
@@ -191,14 +188,20 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                     @Override
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
-                        meetingDate = (monthOfYear + 1) + "/"
-                                + dayOfMonth + "/" + year;
-                        meetingDateText.setText(meetingDate);
+                        updateDate(year, monthOfYear, dayOfMonth);
 
                     }
                 }, year, month, day);
         datePickerDialog.show();
 
+    }
+
+    public void updateDate(int year, int month, int day) {
+        this.year = year;
+        this.day = day;
+        this.month = month;
+        meetingDate = (month + 1) + "/"
+                + day + "/" + year;
     }
 
     public void updateTime(int hour, int minute) {
@@ -223,8 +226,6 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         } else {
             meetingTime = hour + ":" + minute + " " + format;
         }
-
-        updateDatabase();
     }
 
     public void updateDatabase() {

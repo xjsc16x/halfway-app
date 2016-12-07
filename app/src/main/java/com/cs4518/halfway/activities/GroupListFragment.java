@@ -73,7 +73,7 @@ public class GroupListFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_group_list,container, false);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.group_recycler_view);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.group_list);
         setUpFirebaseAdapter();
         return view;
     }
@@ -135,8 +135,8 @@ public class GroupListFragment extends Fragment{
             itemView.setOnClickListener(this);
             context = itemView.getContext();
 
-            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_group_title_text_view);
-            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_group_date_text_view);
+            mTitleTextView = (TextView) itemView.findViewById(R.id.group_name);
+            mDateTextView = (TextView) itemView.findViewById(R.id.group_date);
         }
 
         public void bindGroup(Group group) {
