@@ -87,14 +87,10 @@ public class LoginActivity extends AppCompatActivity {
 
         _loginButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();
+        showProgressDialog();
 
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        String email = getEmailText();
+        String password = getPasswordText();
 
         firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -116,6 +112,17 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Displays a never ending progress dialog
+     */
+    private void showProgressDialog() {
+        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Authenticating...");
+        progressDialog.show();
+    }
+
     @Override
     public void onBackPressed() {
         // Disable going back to the MainActivity
@@ -124,13 +131,14 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Determines if login information is a plausible log-in.
+     *
      * @return True if the log-in info looks valid.
      */
     private boolean validate() {
         boolean valid = true;
 
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        String email = getEmailText();
+        String password = getPasswordText();
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _emailText.setError("Enter a valid email address");
@@ -147,6 +155,24 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         return valid;
+    }
+
+    /**
+     * Retrieves currently entered text from password field
+     *
+     * @return The text entered in password field
+     */
+    private String getPasswordText() {
+        return _passwordText.getText().toString();
+    }
+
+    /**
+     * Retrieves currently entered text from email field
+     *
+     * @return The text entered in email field.
+     */
+    public String getEmailText() {
+        return _emailText.getText().toString();
     }
 }
 
