@@ -1,5 +1,6 @@
 package com.cs4518.halfway.activities;
 
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -48,6 +50,8 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private ToggleButton useLocationToggle;
     private TextView meetingTimeText;
     private Button changeTimeButton;
+    private Button changeDateButton;
+    private TextView meetingDateText;
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference mDatabase;
@@ -67,7 +71,8 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
     private int hour;
     private int minute;
-    private String meetingTime;
+    private String meetingTime, meetingDate;
+    private int year, month, day;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +125,16 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                                 updateTime(hour, minute);
                                             }
                                         });
+
+                                        changeDateButton = (Button) findViewById(R.id.btn_change_date);
+                                        changeDateButton.setVisibility(View.VISIBLE);
+                                        changeDateButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                openDateDialog();
+                                                updateDatabase();
+                                            }
+                                        });
                                     }
                                 }
 
@@ -143,12 +158,16 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         locationText = (EditText) findViewById(R.id.input_location);
         useLocationToggle = (ToggleButton) findViewById(R.id.toggle_location);
         meetingTimeText = (TextView) findViewById(R.id.meeting_time);
+        meetingDateText = (TextView) findViewById(R.id.meeting_date);
 
         useLocationToggle.setChecked(useLocation);
 
         final Calendar c = Calendar.getInstance();
         hour = c.get(Calendar.HOUR_OF_DAY);
         minute = c.get(Calendar.MINUTE);
+        year = c.get(Calendar.YEAR);
+        month = c.get(Calendar.MONTH);
+        day = c.get(Calendar.DAY_OF_MONTH);
     }
 
     public void openTimeDialog() {
@@ -163,6 +182,23 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                     }
                 }, hour, minute, false);
         timePickerDialog.show();
+    }
+
+    public void openDateDialog() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year,
+                                          int monthOfYear, int dayOfMonth) {
+                        meetingDate = (monthOfYear + 1) + "/"
+                                + dayOfMonth + "/" + year;
+                        meetingDateText.setText(meetingDate);
+
+                    }
+                }, year, month, day);
+        datePickerDialog.show();
+
     }
 
     public void updateTime(int hour, int minute) {
@@ -183,13 +219,17 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         }
 
         if (minute < 10) {
-            meetingTime = hour + " : 0" + minute + " " + format;
+            meetingTime = hour + ":0" + minute + " " + format;
         } else {
-            meetingTime = hour + " : " + minute + " " + format;
+            meetingTime = hour + ":" + minute + " " + format;
         }
 
+        updateDatabase();
+    }
+
+    public void updateDatabase() {
         Group group = new Group(currentGroup.groupID, currentGroup.groupName,
-                currentGroup.creator, meetingTime, currentGroup.location);
+                currentGroup.creator, meetingTime, meetingDate, currentGroup.location);
         Map<String, Object> groupValues = group.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();

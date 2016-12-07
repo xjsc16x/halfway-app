@@ -1,5 +1,6 @@
 package com.cs4518.halfway.activities;
 
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -61,15 +63,19 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
     private ToggleButton _useLocationToggle;
     private Button _changeTimeButton;
     private TextView _timeText;
+    private Button _changeDateButton;
+    private TextView _dateText;
 
     private String groupId;
     private String userId;
     private String invitationId;
     private User currentUser;
     private String meetingTime;
+    private String meetingDate;
 
     private int minute;
     private int hour;
+    private int year, month, day;
 
 
     @Override
@@ -82,6 +88,9 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         final Calendar c = Calendar.getInstance();
         hour = c.get(Calendar.HOUR_OF_DAY);
         minute = c.get(Calendar.MINUTE);
+        year = c.get(Calendar.YEAR);
+        month = c.get(Calendar.MONTH);
+        day = c.get(Calendar.DAY_OF_MONTH);
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -117,9 +126,8 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                         public void onClick(View v) {
                             String groupName = _groupNameText.getText().toString();
                             String location = _locationText.getText().toString();
-                            // TODO: implement time picker
                             if (validate()) {
-                                makeNewGroup(groupName, currentUser, meetingTime, location);
+                                makeNewGroup(groupName, currentUser, location);
                                 sendInvitations(currentUser.name, groupName);
                                 Intent intent = new Intent(getApplicationContext(), GroupActivity.class);
                                 intent.putExtra("GROUP_ID", groupId);
@@ -151,14 +159,24 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         _useLocationToggle = (ToggleButton) findViewById(R.id.toggle_location);
 
         _timeText = (TextView) findViewById(R.id.meeting_time);
+        _dateText = (TextView) findViewById(R.id.meeting_date);
         _changeTimeButton = (Button) findViewById(R.id.btn_change_time);
+        _changeDateButton = (Button) findViewById(R.id.btn_change_date);
 
         showTime(hour, minute);
+        showDate(year, month, day);
 
         _changeTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openTimeDialog();
+            }
+        });
+
+        _changeDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDateDialog();
             }
         });
 
@@ -191,6 +209,30 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         timePickerDialog.show();
     }
 
+    public void openDateDialog() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year,
+                                          int monthOfYear, int dayOfMonth) {
+                        showDate(year, monthOfYear, dayOfMonth);
+
+                    }
+                }, year, month, day);
+        datePickerDialog.show();
+
+    }
+
+    public void showDate(int year, int month, int day) {
+        this.year = year;
+        this.day = day;
+        this.month = month;
+        meetingDate = (month + 1) + "/"
+                + day + "/" + year;
+        _dateText.setText(meetingDate);
+    }
+
     public void showTime(int hour, int min) {
         this.hour = hour;
         minute = min;
@@ -209,19 +251,17 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         }
 
         if (min < 10) {
-            StringBuilder time = new StringBuilder().append(hour).append(" : ").append("0").append(min)
+            StringBuilder time = new StringBuilder().append(hour).append(":").append("0").append(min)
                     .append(" ").append(format);
             _timeText.setText(time);
             meetingTime = time.toString();
         }
         else {
-            StringBuilder time = new StringBuilder().append(hour).append(" : ").append(min)
+            StringBuilder time = new StringBuilder().append(hour).append(":").append(min)
                     .append(" ").append(format);
             _timeText.setText(time);
             meetingTime = time.toString();
         }
-
-
     }
 
     @Override
@@ -248,16 +288,14 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
      * Adds a new group to Firebase
      * @param groupName
      * @param creator currently is type User
-     * @param meetingTime
      * @param location
      */
-    private void makeNewGroup(String groupName, User creator,
-                              String meetingTime, String location) {
+    private void makeNewGroup(String groupName, User creator, String location) {
 //        Group group = new Group(groupId, groupName, creator, meetingTime, location);
 //
 //        mDatabase.child(GRP).child(groupId).setValue(group);
         groupId = mDatabase.child(GRP).push().getKey();
-        Group group = new Group(groupId, groupName, creator, meetingTime, location);
+        Group group = new Group(groupId, groupName, creator, meetingTime, meetingDate, location);
         Map<String, Object> groupValues = group.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();

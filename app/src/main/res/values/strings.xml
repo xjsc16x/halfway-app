@@ -39,6 +39,9 @@
     <string name="meeting_places">Meeting Places</string>
     <string name="my_groups">My Groups</string>
     <string name="my_invites">Pending Invites</string>
+    <string name="meeting_date">Date of Meeting</string>
+    <string name="date_format">mm/dd/yy</string>
+    <string name="change_date">Change Date</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

@@ -15,17 +15,20 @@ public class Group {
     public User creator;
     public String meetingTime;
     public String location;
+    public String meetingDate;
 
     public Group() {
 
     }
 
-    public Group(String groupID, String groupName, User creator, String meetingTime, String location) {
+    public Group(String groupID, String groupName, User creator,
+                 String meetingTime, String meetingDate, String location) {
         this.groupID = groupID;
         this.creator = creator;
         this.meetingTime = meetingTime;
         this.location = location;
         this.groupName = groupName;
+        this.meetingDate = meetingDate;
     }
 
     @Exclude
@@ -35,6 +38,7 @@ public class Group {
         result.put("creator", creator);
         result.put("meetingTime", meetingTime);
         result.put("location", location);
+        result.put("meetingDate", meetingDate);
         result.put("groupName", groupName);
 
         return result;

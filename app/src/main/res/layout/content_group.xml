@@ -103,11 +103,45 @@
         android:id="@+id/btn_change_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
         android:padding="12dp"
         android:visibility="gone"
         android:textColor="@color/white"
         android:text="@string/change_time"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="10dp"
+            android:textSize="8pt"
+            android:textColor="@color/white"
+            android:text="@string/meeting_date" />
+
+        <TextView
+            android:id="@+id/meeting_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:textSize="8pt"
+            android:textColor="@color/white"
+            android:hint="@string/date_format" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_change_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:text="@string/change_date"
+        android:textColor="@color/white"
+        android:visibility="gone"/>
 
     <RelativeLayout
         android:layout_width="wrap_content"
