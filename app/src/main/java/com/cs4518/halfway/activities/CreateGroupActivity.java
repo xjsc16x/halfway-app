@@ -1,10 +1,18 @@
 package com.cs4518.halfway.activities;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -22,8 +30,10 @@ import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.Invitation;
 import com.cs4518.halfway.model.User;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,10 +53,11 @@ import java.util.Map;
 import java.util.UUID;
 
 // TODO: the implementation of adding a group to firebase
-public class CreateGroupActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class CreateGroupActivity extends AppCompatActivity {
     private static final String GRP = "groups";
     private static final String USR = "users";
     private static final String INV = "invitations";
+    private static final long GPS_UPDATE_DELAY = 5000;
 
     private DatabaseReference mDatabase;
     private FirebaseAuth firebaseAuth;
@@ -54,7 +65,7 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
     private ChildEventListener userListener;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    private GoogleApiClient mGoogleApiClient;
+    //private GoogleApiClient mGoogleApiClient;
 
     private EditText _groupNameText;
     private EditText _membersText;
@@ -65,6 +76,9 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
     private TextView _timeText;
     private Button _changeDateButton;
     private TextView _dateText;
+
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     private String groupId;
     private String userId;
@@ -91,13 +105,6 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         year = c.get(Calendar.YEAR);
         month = c.get(Calendar.MONTH);
         day = c.get(Calendar.DAY_OF_MONTH);
-
-        mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(LocationServices.API)
-                .enableAutoManage(this, this)
-                .build();
 
         firebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -134,16 +141,14 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                                 intent.putExtra("USE_LOCATION", _useLocationToggle.isChecked());
                                 startActivity(intent);
                                 finish();
-                            }
-                            else {
+                            } else {
                                 Toast.makeText(getApplicationContext(),
                                         "Failed to create group",
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
-                }
-                else {
+                } else {
                     finish();
                     startActivity(new Intent(getApplicationContext(),
                             LoginActivity.class));
@@ -166,6 +171,52 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         showTime(hour, minute);
         showDate(year, month, day);
 
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                _locationText.setText(location.getLatitude()+ " " + location.getLongitude());
+            }
+            @Override
+            public void onStatusChanged(String str, int i, Bundle bundle){
+
+            }
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        };
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.INTERNET,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                }, 10);
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+        }
+        else{
+            configureToggleButton();
+        }
+
+
+
+
         _changeTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -181,15 +232,35 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         });
 
 
-        _useLocationToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,int[] grantResults){
+        switch(requestCode){
+            case 10:
+                if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    configureToggleButton();
+                return;
+        }
+    }
+
+    private void configureToggleButton() {
+        _useLocationToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                // TODO: Use location
-                if (isChecked) {
-                    String hi = "TODO: use current location";
-                    _locationText.setText(hi);
-                } else {
-                    _locationText.setText("");
+                if(isChecked) {
+                    try {
+                        locationManager.requestLocationUpdates("gps", GPS_UPDATE_DELAY, (float) 0, locationListener);
+                    } catch (SecurityException e) {
+
+                    }
+                }
+                else{
+                    try{
+                        locationManager.removeUpdates(locationListener);
+                    } catch (SecurityException e) {
+
+                    }
                 }
             }
         });
@@ -267,21 +338,17 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+
         firebaseAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mGoogleApiClient.disconnect();
+
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
         }
-    }
-
-    private void updateMembersText() {
-        //TODO
     }
 
     /**
@@ -318,19 +385,6 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         mDatabase.updateChildren(childUpdates);
     }
 
-    /**
-     * Adds a user to the current group as a child in Firebase
-     *
-     * @param username
-     * @param name
-     * @param userId
-     */
-    private void addUser(String username, String name, String userId) {
-        User member = new User(username, name, userId);
-
-        mDatabase.child(GRP).child(groupId).child(userId).setValue(member);
-    }
-
     public boolean validate() {
         boolean valid = true;
 
@@ -352,10 +406,6 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         }
 
         return valid;
-    }
-
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        //TODO
     }
 
 }
