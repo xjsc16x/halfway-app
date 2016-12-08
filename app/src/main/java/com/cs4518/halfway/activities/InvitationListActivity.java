@@ -47,10 +47,12 @@ public class InvitationListActivity extends AppCompatActivity {
         // Create the adapter that will return a fragment for each section
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[] {
-                    new InvitationListFragment()
+                    new InvitationListFragment(),
+                    new GroupListFragment()
             };
             private final String[] mFragmentNames = new String[] {
-                    getString(R.string.my_invites)
+                    getString(R.string.my_invites),
+                    getString(R.string.my_groups)
             };
             @Override
             public Fragment getItem(int position) {
