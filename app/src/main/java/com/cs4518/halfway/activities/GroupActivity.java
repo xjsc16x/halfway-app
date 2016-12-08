@@ -38,7 +38,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -117,28 +120,27 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                     meetingTimeText.setText(currentGroup.meetingTime);
                                     meetingDateText.setText(currentGroup.meetingDate);
 
-                                    if (user.getUid().equals(currentGroup.creator.userId)) {
+//                                    if (user.getUid().equals(currentGroup.creator.userId)) {
+//
+//                                        changeTimeButton = (Button) findViewById(R.id.btn_change_time);
+//                                        changeTimeButton.setVisibility(View.VISIBLE);
+//                                        changeTimeButton.setOnClickListener(new View.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(View view) {
+//                                                openTimeDialog();
+//                                            }
+//                                        });
+//
+//                                        changeDateButton = (Button) findViewById(R.id.btn_change_date);
+//                                        changeDateButton.setVisibility(View.VISIBLE);
+//                                        changeDateButton.setOnClickListener(new View.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(View view) {
+//                                                openDateDialog();
+//                                            }
+//                                        });
+//                                    }
 
-                                        changeTimeButton = (Button) findViewById(R.id.btn_change_time);
-                                        changeTimeButton.setVisibility(View.VISIBLE);
-                                        changeTimeButton.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                openTimeDialog();
-                                                updateDatabase();
-                                            }
-                                        });
-
-                                        changeDateButton = (Button) findViewById(R.id.btn_change_date);
-                                        changeDateButton.setVisibility(View.VISIBLE);
-                                        changeDateButton.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                openDateDialog();
-                                                updateDatabase();
-                                            }
-                                        });
-                                    }
                                 }
 
                                 @Override
@@ -202,6 +204,8 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         this.month = month;
         meetingDate = (month + 1) + "/"
                 + day + "/" + year;
+
+        updateDatabase();
     }
 
     public void updateTime(int hour, int minute) {
@@ -226,6 +230,8 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         } else {
             meetingTime = hour + ":" + minute + " " + format;
         }
+
+        updateDatabase();
     }
 
     public void updateDatabase() {

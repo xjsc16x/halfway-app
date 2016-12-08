@@ -23,136 +23,95 @@ import android.widget.TextView;
 
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
+import com.cs4518.halfway.model.GroupViewHolder;
+import com.cs4518.halfway.model.Invitation;
+import com.cs4518.halfway.model.InvitationViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GroupListFragment extends Fragment{
+    private static final String TAG ="GroupListFragment";
 
-    private String GL_DEBUG_TAG =" GroupListFragDebug";
     private DatabaseReference mDatabase;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser user;
-    private FirebaseRecyclerAdapter mFirebaseAdapter;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private RecyclerView mRecyclerView;
 
-    private String userId;
+    private FirebaseRecyclerAdapter<Group, GroupViewHolder> mAdapter;
+    private RecyclerView mRecycler;
+    private LinearLayoutManager mManager;
 
-
-    public void onCreate(Bundle savedInstanceState) {
-        Log.i(GL_DEBUG_TAG,"creating grouplist fragment");
-        super.onCreate(savedInstanceState);
-
-        setHasOptionsMenu(true);
-
-        //mRecyclerView = (RecyclerView) getView().findViewById(R.id.group_recycler_view);
-
-        firebaseAuth = FirebaseAuth.getInstance();
-        Log.i(GL_DEBUG_TAG,"got fb auth");
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    userId = user.getUid();
-                    mDatabase = FirebaseDatabase.getInstance().getReference("/groups");
-                } else {
-                    //finish();
-                    startActivity(new Intent(getActivity(),
-                            LoginActivity.class));
-                }
-            }
-        };
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("groups");
-    }
-
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.fragment_group_list,container, false);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.group_list);
-        setUpFirebaseAdapter();
-        return view;
-    }
+    public GroupListFragment() {}
 
     @Override
-    public void onStart() {
-        super.onStart();
-        firebaseAuth.addAuthStateListener(mAuthListener);
+    public View onCreateView (LayoutInflater inflater, ViewGroup container,
+                              Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View rootView = inflater.inflate(R.layout.fragment_group_list, container, false);
+
+        // [START create_database_reference]
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        // [END create_database_reference]
+
+        mRecycler = (RecyclerView) rootView.findViewById(R.id.group_list);
+        mRecycler.setHasFixedSize(true);
+
+        return rootView;
     }
+
 
     @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            firebaseAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_new_group:
-                startActivity(new Intent(getActivity(), CreateGroupActivity.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+        // Set up Layout Manager, reverse layout
+        mManager = new LinearLayoutManager(getActivity());
+        mManager.setReverseLayout(true);
+        mManager.setStackFromEnd(true);
+        mRecycler.setLayoutManager(mManager);
 
-
-    private void setUpFirebaseAdapter() {
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<Group, GroupHolder>
-                (Group.class, R.layout.list_item_group, GroupHolder.class,
-                        mDatabase) {
+        // Set up FirebaseRecyclerAdapter with the Query
+//        Query invitationQuery = getQuery(mDatabase);
+        Query groupQuery = mDatabase.child("user-groups")
+                .child(getUid());
+        mAdapter = new FirebaseRecyclerAdapter<Group, GroupViewHolder>
+                (Group.class, R.layout.list_item_group,
+                        GroupViewHolder.class, groupQuery) {
 
             @Override
-            protected void populateViewHolder(GroupHolder viewHolder, Group model, int position) {
+            protected void populateViewHolder(final GroupViewHolder viewHolder, final Group model, final int position) {
+                final DatabaseReference groupRef = getRef(position);
+
+                final String groupId = groupRef.getKey();
+
                 viewHolder.bindGroup(model);
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getActivity(), GroupActivity.class);
+                        intent.putExtra("GROUP_ID", groupId);
+                        startActivity(intent);
+                    }
+                });
             }
         };
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.setAdapter(mFirebaseAdapter);
+        mRecycler.setAdapter(mAdapter);
     }
 
-
-    public static class GroupHolder extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
-
-        private final Context context;
-
-        private TextView mTitleTextView;
-        private TextView mDateTextView;
-
-        private Group mGroup;
-
-        public GroupHolder(View itemView) {
-            super(itemView);
-            itemView.setOnClickListener(this);
-            context = itemView.getContext();
-
-            mTitleTextView = (TextView) itemView.findViewById(R.id.group_name);
-            mDateTextView = (TextView) itemView.findViewById(R.id.group_date);
-        }
-
-        public void bindGroup(Group group) {
-            mGroup = group;
-            mTitleTextView.setText(mGroup.groupName);
-            mDateTextView.setText(mGroup.creator.name);
-        }
-
-        @Override
-        public void onClick(View v) {
-            /*
-            //This opens a new intent of GroupActivity
-            Intent intent =  new Intent(context, GroupActivity.class);
-            context.startActivity(intent);
-            */
-        }
+    public String getUid() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mAdapter != null) {
+            mAdapter.cleanup();
+        }
+    }
 }
