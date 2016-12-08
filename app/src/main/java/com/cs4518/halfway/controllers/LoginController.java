@@ -18,13 +18,9 @@ import java.util.Objects;
  */
 public class LoginController implements View.OnClickListener {
 
-    /**
-     * Reference to activity this controller is working with
-     */
+    /** Reference to activity this controller is working with */
     private final LoginActivity activity;
-    /**
-     * FirebaseAuth to interact with for logging in
-     */
+    /** FirebaseAuth to interact with for logging in */
     private FirebaseAuth firebaseAuth;
 
     public LoginController(LoginActivity activity) {
@@ -38,7 +34,8 @@ public class LoginController implements View.OnClickListener {
     }
 
     /**
-     * Validates log-in text is entered, then verifies username and password using {@link #firebaseAuth}.
+     * Validates log-in text is entered, then verifies username and password using {@link
+     * #firebaseAuth}.
      */
     protected void login() {
 
