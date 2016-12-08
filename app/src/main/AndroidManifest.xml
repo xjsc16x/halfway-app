@@ -3,16 +3,14 @@
     package="com.cs4518.halfway">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-
-<application
+    <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity android:name=".activities.UserProfileActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,12 +41,11 @@
         <activity
             android:name=".activities.GroupActivity"
             android:label="@string/title_activity_group"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.GroupListActivity"
             android:label="@string/title_activity_create_group"
             android:theme="@style/AppTheme.Purple" />
-
         <activity
             android:name=".activities.InvitationListActivity"
             android:label="@string/my_invites"
@@ -56,8 +53,9 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDyBvCTnNb-vFUtkGVme_tTeNhUPApqbic"/>
+            android:value="AIzaSyDyBvCTnNb-vFUtkGVme_tTeNhUPApqbic" />
 
+        <activity android:name=".activities.MemberListActivity"></activity>
     </application>
 
 </manifest>
