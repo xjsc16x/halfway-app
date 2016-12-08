@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.cs4518.halfway.R;
@@ -47,12 +48,10 @@ public class InvitationListActivity extends AppCompatActivity {
         // Create the adapter that will return a fragment for each section
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[] {
-                    new InvitationListFragment(),
-                    new GroupListFragment()
+                    new InvitationListFragment()
             };
             private final String[] mFragmentNames = new String[] {
-                    getString(R.string.my_invites),
-                    getString(R.string.my_groups)
+                    getString(R.string.my_invites)
             };
             @Override
             public Fragment getItem(int position) {
