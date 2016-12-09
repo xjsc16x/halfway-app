@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Invitation;
 import com.cs4518.halfway.model.InvitationViewHolder;
+import com.cs4518.halfway.model.Member;
 import com.cs4518.halfway.model.MemberViewHolder;
 import com.cs4518.halfway.model.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -27,11 +28,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MemberListFragment extends Fragment {
-    private static final String TAG ="InvitationListFragment";
+    private static final String TAG ="MemberListFragment";
 
     private DatabaseReference mDatabase;
 
-    private FirebaseRecyclerAdapter<User, MemberViewHolder> mAdapter;
+    private FirebaseRecyclerAdapter<Member, MemberViewHolder> mAdapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
 
@@ -66,17 +67,17 @@ public class MemberListFragment extends Fragment {
 
         // Set up FirebaseRecyclerAdapter with the Query
 //        Query invitationQuery = getQuery(mDatabase);
-        Query memberQuery = mDatabase.child("groups")
+        final Query memberQuery = mDatabase.child("groups")
                 .child("-KYRLT6BDfjtRf-7_3u-").child("members");
-        mAdapter = new FirebaseRecyclerAdapter<User, MemberViewHolder>
-                (User.class, R.layout.list_item_member,
+        mAdapter = new FirebaseRecyclerAdapter<Member, MemberViewHolder>
+                (Member.class, R.layout.list_item_member,
                         MemberViewHolder.class, memberQuery) {
 
             @Override
-            protected void populateViewHolder(final MemberViewHolder viewHolder, final User model, final int position) {
+            protected void populateViewHolder(final MemberViewHolder viewHolder, final Member model, final int position) {
                 final DatabaseReference memberRef = getRef(position);
 
-                viewHolder.bindMember(model);
+                viewHolder.bindMember(memberRef.getKey());
             }
         };
         mRecycler.setAdapter(mAdapter);
@@ -93,4 +94,6 @@ public class MemberListFragment extends Fragment {
             mAdapter.cleanup();
         }
     }
+
+
 }

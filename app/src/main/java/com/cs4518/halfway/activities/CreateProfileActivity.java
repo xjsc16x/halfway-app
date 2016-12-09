@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +14,7 @@ import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class CreateProfileActivity extends AppCompatActivity {
+    private static final String TAG = "CreateProfileActivity";
     private DatabaseReference mDatabase;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser user;
@@ -86,6 +89,11 @@ public class CreateProfileActivity extends AppCompatActivity {
         User user = new User(username, name, userId);
 
         mDatabase.child("users").child(userId).setValue(user);
+//        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+//                .setDisplayName(username).build();
+//        this.user.updateProfile(profileUpdates);
+//
+//        Log.d(TAG, user.getDisplayName());
 
         Intent intent = new Intent(getApplicationContext(), UserProfileActivity.class);
         startActivity(intent);

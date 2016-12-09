@@ -1,13 +1,19 @@
 package com.cs4518.halfway.activities;
 
 import android.app.DatePickerDialog;
+import android.app.Fragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +27,10 @@ import android.widget.ToggleButton;
 
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
+import com.cs4518.halfway.model.Member;
+import com.cs4518.halfway.model.MemberViewHolder;
 import com.cs4518.halfway.model.User;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -33,6 +42,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -57,6 +67,10 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private Button changeTimeButton;
     private Button changeDateButton;
     private TextView meetingDateText;
+
+    private FirebaseRecyclerAdapter<Member, MemberViewHolder> mAdapter;
+    private RecyclerView mRecycler;
+    private LinearLayoutManager mManager;
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference mDatabase;
@@ -96,59 +110,35 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                 .build();
 
         firebaseAuth = FirebaseAuth.getInstance();
+        Intent intent = getIntent();
+        groupId = intent.getStringExtra("GROUP_ID");
+
+        Bundle bundle = new Bundle();
+        bundle.putString("GROUP_ID", groupId);
+        MemberListFragment memberListFragment = new MemberListFragment();
+        memberListFragment.setArguments(bundle);
+
+        mRecycler = (RecyclerView) findViewById(R.id.member_list);
+        mRecycler.setHasFixedSize(true);
+
+        mManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
+        mManager.setReverseLayout(true);
+        mManager.setStackFromEnd(true);
+        mRecycler.setLayoutManager(mManager);
+
+
+        mDatabase = FirebaseDatabase.getInstance()
+                .getReference();
+
+        // TODO: later need to get boolean when navigating from group list
+        // currently only getting extra from CreateGroupActivity
+        useLocation = intent.getBooleanExtra("GET_LOCATION", false);
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     userId = user.getUid();
-                    mDatabase = FirebaseDatabase.getInstance()
-                            .getReference();
-
-                    Intent intent = getIntent();
-                    groupId = intent.getStringExtra("GROUP_ID");
-                    // TODO: later need to get boolean when navigating from group list
-                    // currently only getting extra from CreateGroupActivity
-                    useLocation = intent.getBooleanExtra("GET_LOCATION", false);
-
-                    mDatabase.child(GRP).child(groupId).addValueEventListener(
-                            new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    currentGroup = dataSnapshot.getValue(Group.class);
-                                    groupNameText.setText(currentGroup.groupName);
-                                    locationText.setText(currentGroup.location);
-                                    meetingTimeText.setText(currentGroup.meetingTime);
-                                    meetingDateText.setText(currentGroup.meetingDate);
-
-//                                    if (user.getUid().equals(currentGroup.creator.userId)) {
-//
-//                                        changeTimeButton = (Button) findViewById(R.id.btn_change_time);
-//                                        changeTimeButton.setVisibility(View.VISIBLE);
-//                                        changeTimeButton.setOnClickListener(new View.OnClickListener() {
-//                                            @Override
-//                                            public void onClick(View view) {
-//                                                openTimeDialog();
-//                                            }
-//                                        });
-//
-//                                        changeDateButton = (Button) findViewById(R.id.btn_change_date);
-//                                        changeDateButton.setVisibility(View.VISIBLE);
-//                                        changeDateButton.setOnClickListener(new View.OnClickListener() {
-//                                            @Override
-//                                            public void onClick(View view) {
-//                                                openDateDialog();
-//                                            }
-//                                        });
-//                                    }
-
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            }
-                    );
                 }
                 else {
                     finish();
@@ -159,6 +149,24 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         };
 
+        mDatabase.child(GRP).child(groupId).addValueEventListener(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        currentGroup = dataSnapshot.getValue(Group.class);
+                        groupNameText.setText(currentGroup.groupName);
+                        locationText.setText(currentGroup.location);
+                        meetingTimeText.setText(currentGroup.meetingTime);
+                        meetingDateText.setText(currentGroup.meetingDate);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+
         groupNameText = (TextView) findViewById(R.id.group_name);
         locationText = (EditText) findViewById(R.id.input_location);
         useLocationToggle = (ToggleButton) findViewById(R.id.toggle_location);
@@ -167,6 +175,31 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         useLocationToggle.setChecked(useLocation);
 
+        // Set up FirebaseRecyclerAdapter with the Query
+        final Query memberQuery = mDatabase.child("groups")
+                .child(groupId).child("members");
+        memberQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mAdapter = new FirebaseRecyclerAdapter<Member, MemberViewHolder>
+                        (Member.class, R.layout.list_item_member,
+                                MemberViewHolder.class, memberQuery) {
+
+                    @Override
+                    protected void populateViewHolder(final MemberViewHolder viewHolder, final Member model, final int position) {
+                        final DatabaseReference memberRef = getRef(position);
+
+                        viewHolder.bindMember(memberRef.getKey());
+                    }
+                };
+                mRecycler.setAdapter(mAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void openTimeDialog() {
@@ -264,6 +297,14 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         mGoogleApiClient.disconnect();
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mAdapter != null) {
+            mAdapter.cleanup();
         }
     }
 

@@ -15,7 +15,7 @@ public class MemberViewHolder extends RecyclerView.ViewHolder {
         memberUsername = (TextView) itemView.findViewById(R.id.member_username);
     }
 
-    public void bindMember(User member) {
-        memberUsername.setText(member.username);
+    public void bindMember(String username) {
+        memberUsername.setText(username);
     }
 }
