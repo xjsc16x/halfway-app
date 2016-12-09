@@ -1,6 +1,7 @@
 package com.cs4518.halfway.activities;
 
 import android.app.DatePickerDialog;
+import android.app.DownloadManager;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +20,12 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.User;
@@ -38,8 +45,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,6 +61,8 @@ import java.util.Map;
 public class GroupActivity extends AppCompatActivity implements OnConnectionFailedListener{
     private static final String GRP = "groups";
     private static final String TAG = "GroupActivity";
+
+
 
     private TextView groupNameText;
     private EditText locationText;
@@ -74,6 +88,9 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
     private Group currentGroup;
 
+    private RequestQueue requestQueue;
+    private ArrayList<String> placeIDs;
+
     private int hour;
     private int minute;
     private String meetingTime, meetingDate;
@@ -87,6 +104,32 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         setContentView(R.layout.activity_group);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        requestQueue = Volley.newRequestQueue(this);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,"http://halfway-server.herokuapp.com/api/placeids/-KYRISIIr0FyePR5LRa5",
+                new Response.Listener<JSONObject>(){
+                    @Override
+                    public void onResponse(JSONObject response){
+                        try {
+                            JSONArray jsonArray = response.getJSONArray("results");
+                            for(int i = 0; i < jsonArray.length();i++){
+                                String nextPlaceID = jsonArray.getString(i);
+                                placeIDs.add(nextPlaceID);
+                            }
+                        }
+                        catch(JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        Log.e("VOLLEY", "ERROR RECIEVING RESPONSE");
+                    }
+                });
+        requestQueue.add(jsonObjectRequest);
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
