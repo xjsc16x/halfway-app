@@ -169,19 +169,21 @@ public class CreateGroupActivity extends AppCompatActivity {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                Log.i("LocationListener", "on Location Changed called");
                 _locationText.setText(location.getLatitude()+ " " + location.getLongitude());
             }
             @Override
             public void onStatusChanged(String str, int i, Bundle bundle){
-
+                Log.i("LocationListener", "onStatusChanged");
             }
             @Override
             public void onProviderEnabled(String s) {
-
+                Log.i("LocationListener", "onProviderEnabled");
             }
 
             @Override
             public void onProviderDisabled(String s) {
+                Log.i("LocationListener", "on Location Changed called");
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
@@ -225,7 +227,6 @@ public class CreateGroupActivity extends AppCompatActivity {
         switch(requestCode){
 
             case 10:
-
                 if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     configureToggleButton();
                 return;
@@ -233,12 +234,15 @@ public class CreateGroupActivity extends AppCompatActivity {
     }
 
     private void configureToggleButton() {
+
         _useLocationToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked) {
                     try {
+                        Log.i("onCheckedChanged"," isChecked trying to request updates into locationListener");
                         locationManager.requestLocationUpdates("gps", GPS_UPDATE_DELAY, (float) 0, locationListener);
+
                     } catch (SecurityException e) {
                         Log.e("LOCATION","isChecked cant request location updates");
 
@@ -246,7 +250,9 @@ public class CreateGroupActivity extends AppCompatActivity {
                 }
                 else{
                     try{
+                        Log.i("onCheckedChanged"," trying to removeUpdates from locationListener");
                         locationManager.removeUpdates(locationListener);
+
                     } catch (SecurityException e) {
                         Log.e("LOCATION"," not isChecked cant removeUpdates");
 
