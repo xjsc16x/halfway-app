@@ -40,6 +40,7 @@ import com.cs4518.halfway.model.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.*;
 import com.google.firebase.auth.FirebaseAuth;
@@ -95,6 +96,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private DatabaseReference mDatabase;
 
     GoogleApiClient mGoogleApiClient;
+    GoogleApiClient mGoogleGeoApiClient;
     android.location.Location mLastLocation;
 
     private FirebaseUser user;
@@ -112,6 +114,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
     private RequestQueue requestQueue;
     private ArrayList<String> placeIDs = new ArrayList<>();
+    private ArrayList<Place> placesList = new ArrayList<>();
 
     private int hour;
     private int minute;
@@ -128,13 +131,22 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         setSupportActionBar(toolbar);
 
         requestQueue = Volley.newRequestQueue(this);
-
+        buildGoogleApiClient();
+        /*
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
-                .addApi(Places.GEO_DATA_API)
                 .addApi(LocationServices.API)
                 .enableAutoManage(this, this)
                 .build();
+
+
+        mGoogleGeoApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .enableAutoManage(this, this)
+                .build();
+                */
+
 
         firebaseAuth = FirebaseAuth.getInstance();
         Intent intent = getIntent();
@@ -150,6 +162,23 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                             for(int i = 0; i < jsonArray.length();i++){
                                 String nextPlaceID = jsonArray.getString(i);
                                 placeIDs.add(nextPlaceID);
+                                Log.i(TAG, "PlaceID found: " +nextPlaceID);
+                                Places.GeoDataApi.getPlaceById(mGoogleApiClient, nextPlaceID)
+                                        .setResultCallback(new ResultCallback<PlaceBuffer>() {
+                                            @Override
+                                            public void onResult(PlaceBuffer places) {
+                                                if (places.getStatus().isSuccess() && places.getCount() > 0) {
+                                                    final Place myPlace = places.get(0);
+                                                    placesList.add(myPlace);
+                                                    Log.i(TAG, "Place found: " + myPlace.getName());
+
+                                                } else {
+                                                    Log.e(TAG, "Place not found");
+                                                }
+                                                //PUT YOUR RECYCLER VIEW STUFF HERE PLEASE
+                                                places.release();
+                                            }
+                                        });
 
 
                             }
@@ -313,9 +342,10 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         mRecycler.setAdapter(mAdapter);
 
-        buildGoogleApiClient();
+
 
         if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
             mGoogleApiClient.connect();
         }
         else {
@@ -329,6 +359,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
                 .build();
     }
 
