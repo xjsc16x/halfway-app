@@ -33,9 +33,6 @@
             android:label="@string/title_activity_create_profile"
             android:theme="@style/AppTheme.Purple" />
         <activity
-            android:name=".activities.EditProfileActivity"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name=".activities.CreateGroupActivity"
             android:label="@string/title_activity_create_group"
             android:theme="@style/AppTheme.Purple" />
