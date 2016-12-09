@@ -171,6 +171,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                                         locationText.setHint(text);
                                                     }
                                                     else {
+                                                        // TODO: Pick either Firebase or android location because overwrites
                                                         locationText.setText(currentMember.location.toString());
                                                     }
                                                 }
@@ -223,7 +224,6 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         currentGroup = dataSnapshot.getValue(Group.class);
                         groupNameText.setText(currentGroup.groupName);
-//                        locationText.setText(currentGroup.location);
                         meetingTimeText.setText(currentGroup.meetingTime);
                         meetingDateText.setText(currentGroup.meetingDate);
                     }
