@@ -22,12 +22,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
 
 /**
- * Activity for login screen. Contains a link to (@link #SignUpActivityUp) activity is user doesn't have an account.
+ * Activity for login screen. Contains a link to (@link #SignUpActivityUp) activity is user doesn't
+ * have an account.
  */
 public class LoginActivity extends AppCompatActivity {
-    /**
-     * Tag for debugger logs
-     */
+
+    /** Tag for debugger log */
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
 
@@ -90,7 +90,6 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.dismiss();
         _loginButton.setEnabled(true);
     }
-
 
     /**
      * Displays a toast message notifying user log-in failed

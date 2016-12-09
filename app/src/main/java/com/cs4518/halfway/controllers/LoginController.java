@@ -2,6 +2,7 @@ package com.cs4518.halfway.controllers;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
 
 import com.cs4518.halfway.activities.LoginActivity;
@@ -18,6 +19,8 @@ import java.util.Objects;
  */
 public class LoginController implements View.OnClickListener {
 
+    /** Tag for debugger log */
+    private static final String TAG = "LoginController";
     /** Reference to activity this controller is working with */
     private final LoginActivity activity;
     /** FirebaseAuth to interact with for logging in */
@@ -38,7 +41,7 @@ public class LoginController implements View.OnClickListener {
      * #firebaseAuth}.
      */
     protected void login() {
-
+        Log.d(TAG, "Logging in");
         if (!validate()) {
             activity.showFailedToLoginToast();
             return;
@@ -53,19 +56,22 @@ public class LoginController implements View.OnClickListener {
                 .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        // TODO add debugger log here
+                        Log.d(TAG, "Login attempt completed");
                         if (task.isSuccessful()) {
+                            Log.d(TAG, "Login was successful");
+                            activity.stopProgressDialog();
                             activity.finish();
                             activity.startActivity(new Intent(activity.getApplicationContext(),
                                     UserProfileActivity.class));
                         } else {
+                            Log.d(TAG, "Login was unsuccessful");
                             activity.showFailedToLoginToast();
                             activity.stopProgressDialog();
                         }
                     }
                 });
-
     }
+
 
 
     /**
