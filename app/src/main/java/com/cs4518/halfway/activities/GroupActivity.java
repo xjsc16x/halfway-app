@@ -71,8 +71,6 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private static final String TAG = "GroupActivity";
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 10;
 
-
-
     private TextView groupNameText;
     private EditText locationText;
     private ToggleButton useLocationToggle;
@@ -93,9 +91,9 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private FirebaseAuth firebaseAuth;
     private DatabaseReference mDatabase;
 
-    GoogleApiClient mGoogleApiClient;
-    GoogleApiClient mGoogleGeoApiClient;
-    android.location.Location mLastLocation;
+    private GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleGeoApiClient;
+    private android.location.Location mLastLocation;
 
     private FirebaseUser user;
 
@@ -334,7 +332,6 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
 
         if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
             mGoogleApiClient.connect();
         }
         else {

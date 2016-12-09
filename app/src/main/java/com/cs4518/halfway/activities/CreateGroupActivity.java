@@ -12,7 +12,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -33,6 +35,10 @@ import com.cs4518.halfway.model.Invitation;
 import com.cs4518.halfway.model.GroupMember;
 import com.cs4518.halfway.model.User;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -46,10 +52,11 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateGroupActivity extends AppCompatActivity {
+public class CreateGroupActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
     private static final String GRP = "groups";
     private static final String USR = "users";
     private static final String INV = "invitations";
+    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 10;
     private static final long GPS_UPDATE_DELAY = 5000;
 
     private DatabaseReference mDatabase;
@@ -58,7 +65,8 @@ public class CreateGroupActivity extends AppCompatActivity {
     private ChildEventListener userListener;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    //private GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
+    private android.location.Location mLastLocation;
 
     private EditText _groupNameText;
     private EditText _membersText;
@@ -70,9 +78,6 @@ public class CreateGroupActivity extends AppCompatActivity {
     private Button _changeDateButton;
     private TextView _dateText;
     private TextView _addMembersText;
-
-    private LocationManager locationManager;
-    private LocationListener locationListener;
 
     private String groupId;
     private String userId;
@@ -99,6 +104,8 @@ public class CreateGroupActivity extends AppCompatActivity {
         year = c.get(Calendar.YEAR);
         month = c.get(Calendar.MONTH);
         day = c.get(Calendar.DAY_OF_MONTH);
+
+        buildGoogleApiClient();
 
         firebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -165,48 +172,6 @@ public class CreateGroupActivity extends AppCompatActivity {
         showTime(hour, minute);
         showDate(year, month, day);
 
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                Log.i("LocationListener", "on Location Changed called");
-                _locationText.setText(location.getLatitude()+ " " + location.getLongitude());
-            }
-            @Override
-            public void onStatusChanged(String str, int i, Bundle bundle){
-                Log.i("LocationListener", "onStatusChanged");
-            }
-            @Override
-            public void onProviderEnabled(String s) {
-                Log.i("LocationListener", "onProviderEnabled");
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-                Log.i("LocationListener", "on Location Changed called");
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-            }
-        };
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Log.i("PERMISSIONCHECK", "this is above version_code M");
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.INTERNET,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                }, 10);
-                return;
-            }
-        }
-        else{
-            Log.i("PERMISSIONCHECK", "this is Below version_code M");
-            configureToggleButton();
-        }
 
         _changeTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,18 +186,17 @@ public class CreateGroupActivity extends AppCompatActivity {
                 openDateDialog();
             }
         });
+
+        configureToggleButton();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,int[] grantResults){
-        Log.i("onRPR", "recieved request code" + requestCode);
-        switch(requestCode){
-
-            case 10:
-                if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                    configureToggleButton();
-                return;
-        }
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .build();
     }
 
     private void configureToggleButton() {
@@ -241,23 +205,16 @@ public class CreateGroupActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked) {
-                    try {
-                        Log.i("onCheckedChanged"," isChecked trying to request updates into locationListener");
-                        locationManager.requestLocationUpdates("gps", GPS_UPDATE_DELAY, (float) 0, locationListener);
-
-                    } catch (SecurityException e) {
-                        Log.e("LOCATION","isChecked cant request location updates");
-
+                    if (mGoogleApiClient != null) {
+                        mGoogleApiClient.connect();
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "Not connected...", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else{
-                    try{
-                        Log.i("onCheckedChanged"," trying to removeUpdates from locationListener");
-                        locationManager.removeUpdates(locationListener);
-
-                    } catch (SecurityException e) {
-                        Log.e("LOCATION"," not isChecked cant removeUpdates");
-
+                    if (mGoogleApiClient != null) {
+                        mGoogleApiClient.disconnect();
                     }
                 }
             }
@@ -409,4 +366,61 @@ public class CreateGroupActivity extends AppCompatActivity {
         return valid;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    turnOnLocation();
+                } else {
+                    _useLocationToggle.setChecked(false);
+                }
+                return;
+            }
+        }
+    }
+
+    private void turnOnLocation() {
+        try {
+            _useLocationToggle.setChecked(true);
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            if (mLastLocation != null) {
+                _locationText.setText(mLastLocation.getLatitude() + ", "
+                        + mLastLocation.getLongitude());
+            }
+        }
+        catch (SecurityException e) {
+            // permission denied
+        }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+
+        }
+        else {
+            turnOnLocation();
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Toast.makeText(this, "Connection suspended...", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(this, "Failed to connect...", Toast.LENGTH_SHORT).show();
+    }
 }
