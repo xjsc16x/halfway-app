@@ -133,7 +133,9 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                         @Override
                         public void onClick(View v) {
                             String groupName = _groupNameText.getText().toString();
-                            String location = _locationText.getText().toString();
+                            com.cs4518.halfway.model.Location location =
+                                    makeLocation(_locationText.getText().toString());
+
                             if (validate()) {
                                 makeNewGroup(groupName, currentUser, location);
                                 sendInvitations(currentUser.name, groupName);
@@ -197,6 +199,14 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                 .addApi(LocationServices.API)
                 .addApi(Places.GEO_DATA_API)
                 .build();
+    }
+
+    private com.cs4518.halfway.model.Location makeLocation(String locationString) {
+        String[] locationValues = locationString.split("[ ,]+");
+        double latitude = Double.parseDouble(locationValues[0]);
+        double longitude = Double.parseDouble(locationValues[1]);
+
+        return new com.cs4518.halfway.model.Location(latitude, longitude);
     }
 
     private void configureToggleButton() {
@@ -312,10 +322,10 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
      * @param creator currently is type User
      * @param location
      */
-    private void makeNewGroup(String groupName, User creator, String location) {
+    private void makeNewGroup(String groupName, User creator, com.cs4518.halfway.model.Location location) {
         groupId = mDatabase.child(GRP).push().getKey();
         // TODO: Actually use creator's location
-        GroupMember creatorMember = new GroupMember(creator.username, 0, 0);
+        GroupMember creatorMember = new GroupMember(creator.username, location);
         Group group = new Group(groupId, groupName, creatorMember, meetingTime, meetingDate);
         Map<String, Object> groupValues = group.toMap();
         Map<String, Object> memberValues = creatorMember.toMap();
