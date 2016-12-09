@@ -39,31 +39,40 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
                 android:layout_marginLeft="3dp"
                 android:textSize="8pt"
                 android:textColor="@color/white"
                 android:text="@string/members" />
 
-            <fragment android:name="com.cs4518.halfway.activities.MemberListFragment"
-                android:id="@+id/member_list_fragment"
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText android:id="@+id/input_members"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/white"
+                    android:hint="Add users to invite" />
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_member_list" />
-
+                android:layout_marginLeft="3dp"
+                android:textSize="8pt"
+                android:textColor="@color/white"
+                android:text="@string/my_location" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp">
                 <EditText android:id="@+id/input_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPostalAddress"
+                    android:inputType="textCapWords"
                     android:textColor="@color/white"
-                    android:hint="@string/my_location" />
+                    android:hint="Add your location as coordinates" />
             </android.support.design.widget.TextInputLayout>
 
             <RelativeLayout

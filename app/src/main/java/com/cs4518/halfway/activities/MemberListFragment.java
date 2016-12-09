@@ -1,8 +1,5 @@
 package com.cs4518.halfway.activities;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,29 +7,22 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.cs4518.halfway.R;
-import com.cs4518.halfway.model.Invitation;
-import com.cs4518.halfway.model.InvitationViewHolder;
-import com.cs4518.halfway.model.Member;
+import com.cs4518.halfway.model.GroupMember;
 import com.cs4518.halfway.model.MemberViewHolder;
-import com.cs4518.halfway.model.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class MemberListFragment extends Fragment {
     private static final String TAG ="MemberListFragment";
 
     private DatabaseReference mDatabase;
 
-    private FirebaseRecyclerAdapter<Member, MemberViewHolder> mAdapter;
+    private FirebaseRecyclerAdapter<GroupMember, MemberViewHolder> mAdapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
 
@@ -69,12 +59,12 @@ public class MemberListFragment extends Fragment {
 //        Query invitationQuery = getQuery(mDatabase);
         final Query memberQuery = mDatabase.child("groups")
                 .child("-KYRLT6BDfjtRf-7_3u-").child("members");
-        mAdapter = new FirebaseRecyclerAdapter<Member, MemberViewHolder>
-                (Member.class, R.layout.list_item_member,
+        mAdapter = new FirebaseRecyclerAdapter<GroupMember, MemberViewHolder>
+                (GroupMember.class, R.layout.list_item_member,
                         MemberViewHolder.class, memberQuery) {
 
             @Override
-            protected void populateViewHolder(final MemberViewHolder viewHolder, final Member model, final int position) {
+            protected void populateViewHolder(final MemberViewHolder viewHolder, final GroupMember model, final int position) {
                 final DatabaseReference memberRef = getRef(position);
 
                 viewHolder.bindMember(memberRef.getKey());

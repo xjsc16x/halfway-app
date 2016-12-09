@@ -5,19 +5,27 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.cs4518.halfway.R;
+import com.cs4518.halfway.model.Group;
+import com.cs4518.halfway.model.GroupMember;
 import com.cs4518.halfway.model.Invitation;
 import com.cs4518.halfway.model.InvitationViewHolder;
+import com.cs4518.halfway.model.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Member;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +37,12 @@ public class InvitationListFragment extends Fragment {
     private FirebaseRecyclerAdapter<Invitation, InvitationViewHolder> mAdapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
+
+    private String username;
+    private Map<String, Object> groupValues;
+    private Map<String, Object> memberValues;
+    private String userId;
+    private String groupId;
 
     public InvitationListFragment() {}
 
@@ -59,46 +73,84 @@ public class InvitationListFragment extends Fragment {
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
 
-        // Set up FirebaseRecyclerAdapter with the Query
-//        Query invitationQuery = getQuery(mDatabase);
-        Query invitationQuery = mDatabase.child("user-invites")
-                .child(getUid());
-        mAdapter = new FirebaseRecyclerAdapter<Invitation, InvitationViewHolder>
-                (Invitation.class, R.layout.list_item_invitation,
-                InvitationViewHolder.class, invitationQuery) {
-
-            @Override
-            protected void populateViewHolder(final InvitationViewHolder viewHolder, final Invitation model, final int position) {
-                final DatabaseReference invitationRef = getRef(position);
-
-                final String invitationId = invitationRef.getKey();
-
-                viewHolder.bindInvitation(model, new View.OnClickListener() {
+        mDatabase.child("users").child(getUid()).addValueEventListener(
+                new ValueEventListener() {
                     @Override
-                    public void onClick(View starView) {
-                        Intent intent = new Intent(getActivity(), GroupActivity.class);
-                        intent.putExtra("GROUP_ID", model.groupId);
-                        Map<String, Object> childUpdates = new HashMap<>();
-                        childUpdates.put("/invitations/" + invitationId, null);
-                        childUpdates.put("/user-invites/" + model.userId + "/" + invitationId, null);
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final User user = dataSnapshot.getValue(User.class);
+                        username = user.username;
+                        userId = user.userId;
 
-                        mDatabase.updateChildren(childUpdates);
-                        startActivity(intent);
+                        // TODO: Fix this default for coordinates
+                        memberValues = new GroupMember(username, 0, 0).toMap();
+
+                        // Set up FirebaseRecyclerAdapter with the Query
+                        Query invitationQuery = mDatabase.child("user-invites")
+                                .child(username);
+                        mAdapter = new FirebaseRecyclerAdapter<Invitation, InvitationViewHolder>
+                                (Invitation.class, R.layout.list_item_invitation,
+                                        InvitationViewHolder.class, invitationQuery) {
+
+                            @Override
+                            protected void populateViewHolder(final InvitationViewHolder viewHolder,
+                                                              final Invitation model, final int position) {
+                                final DatabaseReference invitationRef = getRef(position);
+
+                                final String invitationId = invitationRef.getKey();
+
+                                viewHolder.bindInvitation(model, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View starView) {
+                                        groupId = model.groupId;
+
+                                        mDatabase.child("groups").child(groupId).addValueEventListener(
+                                                new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        Intent intent = new Intent(getActivity(), GroupActivity.class);
+                                                        intent.putExtra("GROUP_ID", groupId);
+
+                                                        Group currentGroup = dataSnapshot.getValue(Group.class);
+                                                        groupValues = currentGroup.toMap();
+
+                                                        Map<String, Object> childUpdates = new HashMap<>();
+                                                        Log.d(TAG, "MADE IT");
+                                                        childUpdates.put("/user-invites/" + username + "/" + invitationId, null);
+                                                        childUpdates.put("/user-groups/" + userId + "/" + groupId, groupValues);
+                                                        childUpdates.put("/group-members/" + groupId + "/" + username, memberValues);
+
+                                                        mDatabase.updateChildren(childUpdates);
+                                                        startActivity(intent);
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                }
+                                        );
+                                    }
+                                }, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View starView) {
+
+                                        Map<String, Object> childUpdates = new HashMap<>();
+                                        childUpdates.put("/user-invites/" + username + "/" + invitationId, null);
+
+                                        mDatabase.updateChildren(childUpdates);
+                                    }
+                                });
+                            }
+                        };
+                        mRecycler.setAdapter(mAdapter);
                     }
-                }, new View.OnClickListener() {
+
                     @Override
-                    public void onClick(View starView) {
+                    public void onCancelled(DatabaseError databaseError) {
 
-                        Map<String, Object> childUpdates = new HashMap<>();
-                        childUpdates.put("/invitations/" + invitationId, null);
-                        childUpdates.put("/user-invites/" + model.userId + "/" + invitationId, null);
-
-                        mDatabase.updateChildren(childUpdates);
                     }
-                });
-            }
-        };
-        mRecycler.setAdapter(mAdapter);
+                }
+        );
     }
 
     public String getUid() {

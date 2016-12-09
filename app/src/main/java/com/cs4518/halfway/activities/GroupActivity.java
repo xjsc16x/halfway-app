@@ -1,35 +1,25 @@
 package com.cs4518.halfway.activities;
 
 import android.app.DatePickerDialog;
-import android.app.Fragment;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
-import com.cs4518.halfway.model.Member;
+import com.cs4518.halfway.model.GroupMember;
 import com.cs4518.halfway.model.MemberViewHolder;
-import com.cs4518.halfway.model.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -45,13 +35,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +53,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private Button changeDateButton;
     private TextView meetingDateText;
 
-    private FirebaseRecyclerAdapter<Member, MemberViewHolder> mAdapter;
+    private FirebaseRecyclerAdapter<GroupMember, MemberViewHolder> mAdapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
 
@@ -126,9 +111,24 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         mManager.setStackFromEnd(true);
         mRecycler.setLayoutManager(mManager);
 
-
         mDatabase = FirebaseDatabase.getInstance()
                 .getReference();
+
+        // Set up FirebaseRecyclerAdapter with the Query
+        final Query memberQuery = mDatabase.child("group-members")
+                .child(groupId);
+        mAdapter = new FirebaseRecyclerAdapter<GroupMember, MemberViewHolder>
+                (GroupMember.class, R.layout.list_item_member,
+                        MemberViewHolder.class, memberQuery) {
+
+            @Override
+            protected void populateViewHolder(final MemberViewHolder viewHolder,
+                                              final GroupMember model, final int position) {
+                final DatabaseReference memberRef = getRef(position);
+
+                viewHolder.bindMember(memberRef.getKey());
+            }
+        };
 
         // TODO: later need to get boolean when navigating from group list
         // currently only getting extra from CreateGroupActivity
@@ -175,24 +175,10 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         useLocationToggle.setChecked(useLocation);
 
-        // Set up FirebaseRecyclerAdapter with the Query
-        final Query memberQuery = mDatabase.child("groups")
-                .child(groupId).child("members");
         memberQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mAdapter = new FirebaseRecyclerAdapter<Member, MemberViewHolder>
-                        (Member.class, R.layout.list_item_member,
-                                MemberViewHolder.class, memberQuery) {
-
-                    @Override
-                    protected void populateViewHolder(final MemberViewHolder viewHolder, final Member model, final int position) {
-                        final DatabaseReference memberRef = getRef(position);
-
-                        viewHolder.bindMember(memberRef.getKey());
-                    }
-                };
-                mRecycler.setAdapter(mAdapter);
+                mAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -200,6 +186,8 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
             }
         });
+
+        mRecycler.setAdapter(mAdapter);
     }
 
     public void openTimeDialog() {

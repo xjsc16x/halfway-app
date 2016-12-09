@@ -13,4 +13,12 @@ public class Location {
         this.latitude = latitude;
         this.longtitude = longtitude;
     }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongtitude() {
+        return longtitude;
+    }
 }

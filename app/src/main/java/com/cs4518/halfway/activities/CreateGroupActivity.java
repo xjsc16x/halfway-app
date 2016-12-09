@@ -29,13 +29,9 @@ import android.widget.ToggleButton;
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.Invitation;
+import com.cs4518.halfway.model.GroupMember;
 import com.cs4518.halfway.model.User;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Places;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -45,12 +41,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 // TODO: the implementation of adding a group to firebase
 public class CreateGroupActivity extends AppCompatActivity {
@@ -76,6 +69,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     private TextView _timeText;
     private Button _changeDateButton;
     private TextView _dateText;
+    private TextView _addMembersText;
 
     private LocationManager locationManager;
     private LocationListener locationListener;
@@ -158,7 +152,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         };
 
         _groupNameText = (EditText) findViewById(R.id.input_group_name);
-        //_membersText = (EditText) findViewById(R.id.input_group_name);
+        _addMembersText = (EditText) findViewById(R.id.input_members);
         _createButton = (Button) findViewById(R.id.btn_create_group);
         _locationText = (EditText) findViewById(R.id.input_location);
         _useLocationToggle = (ToggleButton) findViewById(R.id.toggle_location);
@@ -214,9 +208,6 @@ public class CreateGroupActivity extends AppCompatActivity {
             configureToggleButton();
         }
 
-
-
-
         _changeTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -230,8 +221,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                 openDateDialog();
             }
         });
-
-
     }
 
     @Override
@@ -358,29 +347,33 @@ public class CreateGroupActivity extends AppCompatActivity {
      * @param location
      */
     private void makeNewGroup(String groupName, User creator, String location) {
-//        Group group = new Group(groupId, groupName, creator, meetingTime, location);
-//
-//        mDatabase.child(GRP).child(groupId).setValue(group);
         groupId = mDatabase.child(GRP).push().getKey();
-        Group group = new Group(groupId, groupName, creator, meetingTime, meetingDate, location);
+        // TODO: Actually use creator's location
+        GroupMember creatorMember = new GroupMember(creator.username, 0, 0);
+        Group group = new Group(groupId, groupName, creatorMember, meetingTime, meetingDate, location);
         Map<String, Object> groupValues = group.toMap();
+        Map<String, Object> memberValues = creatorMember.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/groups/" + groupId, groupValues);
         childUpdates.put("/user-groups/" + creator.userId + "/" + groupId, groupValues);
+        childUpdates.put("/group-members/" + groupId + "/" + creator.username, memberValues);
 
         mDatabase.updateChildren(childUpdates);
     }
 
     // TODO: send invites to all members and not creator
     private void sendInvitations(String creator, String groupName) {
+        String[] invitees = _addMembersText.getText().toString().toLowerCase().split("[ ,]+");
+
         invitationId = mDatabase.child(INV).push().getKey();
         Invitation invitation = new Invitation(invitationId, groupId, userId, groupName, creator);
         Map<String, Object> invitationValues = invitation.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/invitations/" + invitationId, invitationValues);
-        childUpdates.put("/user-invites/" + userId + "/" + invitationId, invitationValues);
+        for (String invitee : invitees) {
+            childUpdates.put("/user-invites/" + invitee + "/" + invitationId, invitationValues);
+        }
 
         mDatabase.updateChildren(childUpdates);
     }
