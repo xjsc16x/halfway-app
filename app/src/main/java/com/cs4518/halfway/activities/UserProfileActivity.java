@@ -45,7 +45,6 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseUser user;
     private DatabaseReference mDatabase;
 
-    private ChildEventListener userListener;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override

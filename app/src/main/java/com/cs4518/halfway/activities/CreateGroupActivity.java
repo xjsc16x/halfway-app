@@ -45,7 +45,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO: the implementation of adding a group to firebase
 public class CreateGroupActivity extends AppCompatActivity {
     private static final String GRP = "groups";
     private static final String USR = "users";
@@ -350,7 +349,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         groupId = mDatabase.child(GRP).push().getKey();
         // TODO: Actually use creator's location
         GroupMember creatorMember = new GroupMember(creator.username, 0, 0);
-        Group group = new Group(groupId, groupName, creatorMember, meetingTime, meetingDate, location);
+        Group group = new Group(groupId, groupName, creatorMember, meetingTime, meetingDate);
         Map<String, Object> groupValues = group.toMap();
         Map<String, Object> memberValues = creatorMember.toMap();
 
@@ -362,7 +361,6 @@ public class CreateGroupActivity extends AppCompatActivity {
         mDatabase.updateChildren(childUpdates);
     }
 
-    // TODO: send invites to all members and not creator
     private void sendInvitations(String creator, String groupName) {
         String[] invitees = _addMembersText.getText().toString().toLowerCase().split("[ ,]+");
 

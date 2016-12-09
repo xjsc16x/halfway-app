@@ -8,22 +8,24 @@ import java.util.Map;
 
 @IgnoreExtraProperties
 public class GroupMember {
-    Location coordinates;
+    public double longitude;
+    public double latitude;
     public String username;
 
     public GroupMember() {}
 
     public GroupMember(String username, double longitude, double latitude) {
         this.username = username;
-        this.coordinates = new Location(latitude, longitude);
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-//        result.put("username", username);
-        result.put("longitude", coordinates.getLongtitude());
-        result.put("latitude", coordinates.getLatitude());
+        result.put("latitude", latitude);
+        result.put("longitude", longitude);
+        result.put("username", username);
 
         return result;
     }

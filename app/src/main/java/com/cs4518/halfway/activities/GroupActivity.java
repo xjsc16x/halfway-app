@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -19,7 +21,9 @@ import android.widget.ToggleButton;
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.GroupMember;
+import com.cs4518.halfway.model.Location;
 import com.cs4518.halfway.model.MemberViewHolder;
+import com.cs4518.halfway.model.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -37,6 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
+import java.lang.reflect.Member;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +57,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private Button changeTimeButton;
     private Button changeDateButton;
     private TextView meetingDateText;
+    private Button updateLocationButton;
 
     private FirebaseRecyclerAdapter<GroupMember, MemberViewHolder> mAdapter;
     private RecyclerView mRecycler;
@@ -70,6 +76,8 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private String userId;
     private String groupId;
     private boolean useLocation;
+    private User currentUser;
+    private String username;
 
     private Group currentGroup;
 
@@ -97,11 +105,6 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         firebaseAuth = FirebaseAuth.getInstance();
         Intent intent = getIntent();
         groupId = intent.getStringExtra("GROUP_ID");
-
-        Bundle bundle = new Bundle();
-        bundle.putString("GROUP_ID", groupId);
-        MemberListFragment memberListFragment = new MemberListFragment();
-        memberListFragment.setArguments(bundle);
 
         mRecycler = (RecyclerView) findViewById(R.id.member_list);
         mRecycler.setHasFixedSize(true);
@@ -139,6 +142,59 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                 user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     userId = user.getUid();
+
+                    mDatabase.child("users").child(userId).addValueEventListener(
+                            new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    currentUser = dataSnapshot.getValue(User.class);
+                                    username = currentUser.username;
+
+                                    mDatabase.child("group-members").child(groupId).child(username).addValueEventListener(
+                                            new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    GroupMember currentMember = dataSnapshot.getValue(GroupMember.class);
+                                                    double latitude = currentMember.latitude;
+                                                    double longitude = currentMember.longitude;
+                                                    if (latitude == 0 && longitude == 0) {
+                                                        String text = "Set your location coordinates";
+                                                        locationText.setHint(text);
+                                                    }
+                                                    else {
+                                                        String coordinates = latitude + ", " + longitude;
+                                                        locationText.setText(coordinates);
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            }
+                                    );
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            }
+                    );
+
+                    updateLocationButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // TODO: Error checking
+                            String location = locationText.getText().toString();
+                            String[] locationValues = location.split("[ ,]+");
+                            mDatabase.child("group-members").child(groupId).child(username).child("latitude")
+                                    .setValue(Double.parseDouble(locationValues[0]));
+                            mDatabase.child("group-members").child(groupId).child(username).child("longitude")
+                                    .setValue(Double.parseDouble(locationValues[1]));
+
+                        }
+                    });
                 }
                 else {
                     finish();
@@ -149,13 +205,15 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         };
 
+
+
         mDatabase.child(GRP).child(groupId).addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         currentGroup = dataSnapshot.getValue(Group.class);
                         groupNameText.setText(currentGroup.groupName);
-                        locationText.setText(currentGroup.location);
+//                        locationText.setText(currentGroup.location);
                         meetingTimeText.setText(currentGroup.meetingTime);
                         meetingDateText.setText(currentGroup.meetingDate);
                     }
@@ -167,11 +225,16 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                 }
         );
 
+
+
         groupNameText = (TextView) findViewById(R.id.group_name);
         locationText = (EditText) findViewById(R.id.input_location);
         useLocationToggle = (ToggleButton) findViewById(R.id.toggle_location);
         meetingTimeText = (TextView) findViewById(R.id.meeting_time);
         meetingDateText = (TextView) findViewById(R.id.meeting_date);
+        updateLocationButton = (Button) findViewById(R.id.btn_update_location);
+
+
 
         useLocationToggle.setChecked(useLocation);
 
@@ -257,7 +320,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
     public void updateDatabase() {
         Group group = new Group(currentGroup.groupID, currentGroup.groupName,
-                currentGroup.creator, meetingTime, meetingDate, currentGroup.location);
+                currentGroup.creator, meetingTime, meetingDate);
         Map<String, Object> groupValues = group.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
@@ -269,7 +332,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        //TODO
+        // TODO: onConnectionFailed
     }
 
     @Override

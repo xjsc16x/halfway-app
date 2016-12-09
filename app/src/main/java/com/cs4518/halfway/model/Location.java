@@ -1,24 +1,35 @@
 package com.cs4518.halfway.model;
 
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @IgnoreExtraProperties
 public class Location {
-    private double latitude;
-    private double longtitude;
+    public double latitude;
+    public double longitude;
 
     public Location() {}
 
     public Location(double latitude, double longtitude) {
         this.latitude = latitude;
-        this.longtitude = longtitude;
+        this.longitude = longtitude;
     }
 
-    public double getLatitude() {
-        return latitude;
+    @Override
+    public String toString() {
+        return latitude +
+                ", " + longitude;
     }
 
-    public double getLongtitude() {
-        return longtitude;
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("latitude", latitude);
+        result.put("longitude", longitude);
+
+        return result;
     }
 }
