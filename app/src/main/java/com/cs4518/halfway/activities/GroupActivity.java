@@ -1,10 +1,15 @@
 package com.cs4518.halfway.activities;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +21,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.cs4518.halfway.R;
@@ -45,10 +51,13 @@ import java.lang.reflect.Member;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.android.gms.location.LocationServices;
 
-public class GroupActivity extends AppCompatActivity implements OnConnectionFailedListener{
+
+public class GroupActivity extends AppCompatActivity implements OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
     private static final String GRP = "groups";
     private static final String TAG = "GroupActivity";
+    private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 10;
 
     private TextView groupNameText;
     private EditText locationText;
@@ -66,12 +75,13 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private FirebaseAuth firebaseAuth;
     private DatabaseReference mDatabase;
 
+    GoogleApiClient mGoogleApiClient;
+    android.location.Location mLastLocation;
+
     private FirebaseUser user;
 
     private ChildEventListener groupListener;
     private FirebaseAuth.AuthStateListener mAuthListener;
-
-    private GoogleApiClient mGoogleApiClient;
 
     private String userId;
     private String groupId;
@@ -251,6 +261,24 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         });
 
         mRecycler.setAdapter(mAdapter);
+
+        buildGoogleApiClient();
+
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+        else {
+            Toast.makeText(this, "Not connected...", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     public void openTimeDialog() {
@@ -332,7 +360,67 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        // TODO: onConnectionFailed
+        Toast.makeText(this, "Failed to connect...", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+
+        }
+        else {
+            useLocationToggle.setChecked(true);
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            if (mLastLocation != null) {
+                locationText.setText(mLastLocation.getLatitude() + ", "
+                    + mLastLocation.getLongitude());
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    try {
+                        useLocationToggle.setChecked(true);
+                        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                                mGoogleApiClient);
+                        if (mLastLocation != null) {
+                            locationText.setText(mLastLocation.getLatitude() + ", "
+                                    + mLastLocation.getLongitude());
+                        }
+                    }
+                    catch (SecurityException e) {
+                        // permission denied
+                    }
+
+
+                } else {
+                    useLocationToggle.setChecked(false);
+                }
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int arg0) {
+        Toast.makeText(this, "Connection suspended...", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
