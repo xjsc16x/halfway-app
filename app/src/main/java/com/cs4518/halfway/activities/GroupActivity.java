@@ -111,7 +111,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private Group currentGroup;
 
     private RequestQueue requestQueue;
-    private ArrayList<String> placeIDs;
+    private ArrayList<String> placeIDs = new ArrayList<>();
 
     private int hour;
     private int minute;
@@ -129,30 +129,6 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         requestQueue = Volley.newRequestQueue(this);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,"http://halfway-server.herokuapp.com/api/placeids/-KYRISIIr0FyePR5LRa5",
-                new Response.Listener<JSONObject>(){
-                    @Override
-                    public void onResponse(JSONObject response){
-                        try {
-                            JSONArray jsonArray = response.getJSONArray("results");
-                            for(int i = 0; i < jsonArray.length();i++){
-                                String nextPlaceID = jsonArray.getString(i);
-                                placeIDs.add(nextPlaceID);
-                            }
-                        }
-                        catch(JSONException e){
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener(){
-                    @Override
-                    public void onErrorResponse(VolleyError error){
-                        Log.e("VOLLEY", "ERROR RECIEVING RESPONSE");
-                    }
-                });
-        requestQueue.add(jsonObjectRequest);
-
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
@@ -163,6 +139,33 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         firebaseAuth = FirebaseAuth.getInstance();
         Intent intent = getIntent();
         groupId = intent.getStringExtra("GROUP_ID");
+
+        String getUrl = "http://halfway-server.herokuapp.com/api/placeids/" + groupId;
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, getUrl,
+                new Response.Listener<JSONObject>(){
+                    @Override
+                    public void onResponse(JSONObject response){
+                        try {
+                            JSONArray jsonArray = response.getJSONArray("results");
+                            for(int i = 0; i < jsonArray.length();i++){
+                                String nextPlaceID = jsonArray.getString(i);
+                                placeIDs.add(nextPlaceID);
+
+
+                            }
+                        }
+                        catch(JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        Log.e("VOLLEY", "ERROR RECEIVING RESPONSE");
+                    }
+                });
+        requestQueue.add(jsonObjectRequest);
 
         mRecycler = (RecyclerView) findViewById(R.id.member_list);
         mRecycler.setHasFixedSize(true);

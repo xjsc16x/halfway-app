@@ -191,7 +191,9 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Log.i("PERMISSIONCHECK", "this is above version_code M");
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                 ActivityCompat.requestPermissions(this, new String[]{
                         Manifest.permission.INTERNET,
