@@ -3,6 +3,8 @@ package com.cs4518.halfway.activities;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.cs4518.halfway.activities.LoginActivity;
+
 /**
  * Created by 10 on 2016-12-07.
  */
