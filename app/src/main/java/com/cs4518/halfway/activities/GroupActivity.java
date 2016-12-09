@@ -2,6 +2,7 @@ package com.cs4518.halfway.activities;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.app.DownloadManager;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +25,12 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.GroupMember;
@@ -47,7 +54,17 @@ import com.google.firebase.database.ValueEventListener;
 
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
-import java.lang.reflect.Member;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,6 +75,8 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private static final String GRP = "groups";
     private static final String TAG = "GroupActivity";
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 10;
+
+
 
     private TextView groupNameText;
     private EditText locationText;
@@ -91,6 +110,9 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
     private Group currentGroup;
 
+    private RequestQueue requestQueue;
+    private ArrayList<String> placeIDs = new ArrayList<>();
+
     private int hour;
     private int minute;
     private String meetingTime, meetingDate;
@@ -105,6 +127,8 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        requestQueue = Volley.newRequestQueue(this);
+
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
@@ -115,6 +139,33 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         firebaseAuth = FirebaseAuth.getInstance();
         Intent intent = getIntent();
         groupId = intent.getStringExtra("GROUP_ID");
+
+        String getUrl = "http://halfway-server.herokuapp.com/api/placeids/" + groupId;
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, getUrl,
+                new Response.Listener<JSONObject>(){
+                    @Override
+                    public void onResponse(JSONObject response){
+                        try {
+                            JSONArray jsonArray = response.getJSONArray("results");
+                            for(int i = 0; i < jsonArray.length();i++){
+                                String nextPlaceID = jsonArray.getString(i);
+                                placeIDs.add(nextPlaceID);
+
+
+                            }
+                        }
+                        catch(JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener(){
+                    @Override
+                    public void onErrorResponse(VolleyError error){
+                        Log.e("VOLLEY", "ERROR RECEIVING RESPONSE");
+                    }
+                });
+        requestQueue.add(jsonObjectRequest);
 
         mRecycler = (RecyclerView) findViewById(R.id.member_list);
         mRecycler.setHasFixedSize(true);
@@ -171,6 +222,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                                         locationText.setHint(text);
                                                     }
                                                     else {
+                                                        // TODO: Pick either Firebase or android location because overwrites
                                                         locationText.setText(currentMember.location.toString());
                                                     }
                                                 }
@@ -223,7 +275,6 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         currentGroup = dataSnapshot.getValue(Group.class);
                         groupNameText.setText(currentGroup.groupName);
-//                        locationText.setText(currentGroup.location);
                         meetingTimeText.setText(currentGroup.meetingTime);
                         meetingDateText.setText(currentGroup.meetingDate);
                     }

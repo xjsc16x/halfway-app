@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -168,42 +169,42 @@ public class CreateGroupActivity extends AppCompatActivity {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                Log.i("LocationListener", "on Location Changed called");
                 _locationText.setText(location.getLatitude()+ " " + location.getLongitude());
             }
             @Override
             public void onStatusChanged(String str, int i, Bundle bundle){
-
+                Log.i("LocationListener", "onStatusChanged");
             }
             @Override
             public void onProviderEnabled(String s) {
-
+                Log.i("LocationListener", "onProviderEnabled");
             }
 
             @Override
             public void onProviderDisabled(String s) {
+                Log.i("LocationListener", "on Location Changed called");
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
         };
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("PERMISSIONCHECK", "this is above version_code M");
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
                 ActivityCompat.requestPermissions(this, new String[]{
                         Manifest.permission.INTERNET,
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION
                 }, 10);
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
         }
         else{
+            Log.i("PERMISSIONCHECK", "this is Below version_code M");
             configureToggleButton();
         }
 
@@ -224,7 +225,9 @@ public class CreateGroupActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,int[] grantResults){
+        Log.i("onRPR", "recieved request code" + requestCode);
         switch(requestCode){
+
             case 10:
                 if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     configureToggleButton();
@@ -233,20 +236,27 @@ public class CreateGroupActivity extends AppCompatActivity {
     }
 
     private void configureToggleButton() {
+
         _useLocationToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked) {
                     try {
+                        Log.i("onCheckedChanged"," isChecked trying to request updates into locationListener");
                         locationManager.requestLocationUpdates("gps", GPS_UPDATE_DELAY, (float) 0, locationListener);
+
                     } catch (SecurityException e) {
+                        Log.e("LOCATION","isChecked cant request location updates");
 
                     }
                 }
                 else{
                     try{
+                        Log.i("onCheckedChanged"," trying to removeUpdates from locationListener");
                         locationManager.removeUpdates(locationListener);
+
                     } catch (SecurityException e) {
+                        Log.e("LOCATION"," not isChecked cant removeUpdates");
 
                     }
                 }
