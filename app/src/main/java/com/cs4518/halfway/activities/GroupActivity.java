@@ -2,7 +2,6 @@ package com.cs4518.halfway.activities;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
-import android.app.DownloadManager;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,6 +35,7 @@ import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.GroupMember;
 import com.cs4518.halfway.model.Location;
 import com.cs4518.halfway.model.MemberViewHolder;
+import com.cs4518.halfway.model.PlaceAdapter;
 import com.cs4518.halfway.model.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.ConnectionResult;
@@ -60,16 +60,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.android.gms.location.LocationServices;
 
 
 public class GroupActivity extends AppCompatActivity implements OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
@@ -89,8 +83,12 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private Button updateLocationButton;
 
     private FirebaseRecyclerAdapter<GroupMember, MemberViewHolder> mAdapter;
-    private RecyclerView mRecycler;
-    private LinearLayoutManager mManager;
+    private RecyclerView mGroupMemberRecycler;
+    private LinearLayoutManager mHorizontalManager;
+    private RecyclerView mPlaceRecycler;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+    private PlaceAdapter mPlaceAdapter;
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference mDatabase;
@@ -132,25 +130,15 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         requestQueue = Volley.newRequestQueue(this);
         buildGoogleApiClient();
-        /*
-        mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(LocationServices.API)
-                .enableAutoManage(this, this)
-                .build();
-
-
-        mGoogleGeoApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .enableAutoManage(this, this)
-                .build();
-                */
-
 
         firebaseAuth = FirebaseAuth.getInstance();
         Intent intent = getIntent();
         groupId = intent.getStringExtra("GROUP_ID");
+
+        mPlaceRecycler = (RecyclerView) findViewById(R.id.place_list);
+        mPlaceRecycler.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mPlaceRecycler.setLayoutManager(mLayoutManager);
 
         String getUrl = "http://halfway-server.herokuapp.com/api/placeids/" + groupId;
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, getUrl,
@@ -168,14 +156,15 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                             @Override
                                             public void onResult(PlaceBuffer places) {
                                                 if (places.getStatus().isSuccess() && places.getCount() > 0) {
-                                                    final Place myPlace = places.get(0);
+                                                    final Place myPlace = places.get(0).freeze();
                                                     placesList.add(myPlace);
                                                     Log.i(TAG, "Place found: " + myPlace.getName());
 
                                                 } else {
                                                     Log.e(TAG, "Place not found");
                                                 }
-                                                //PUT YOUR RECYCLER VIEW STUFF HERE PLEASE
+                                                mPlaceAdapter = new PlaceAdapter(placesList);
+                                                mPlaceRecycler.setAdapter(mPlaceAdapter);
                                                 places.release();
                                             }
                                         });
@@ -196,13 +185,13 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                 });
         requestQueue.add(jsonObjectRequest);
 
-        mRecycler = (RecyclerView) findViewById(R.id.member_list);
-        mRecycler.setHasFixedSize(true);
+        mGroupMemberRecycler = (RecyclerView) findViewById(R.id.member_list);
+        mGroupMemberRecycler.setHasFixedSize(true);
 
-        mManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
-        mManager.setReverseLayout(true);
-        mManager.setStackFromEnd(true);
-        mRecycler.setLayoutManager(mManager);
+        mHorizontalManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
+        mHorizontalManager.setReverseLayout(true);
+        mHorizontalManager.setStackFromEnd(true);
+        mGroupMemberRecycler.setLayoutManager(mHorizontalManager);
 
         mDatabase = FirebaseDatabase.getInstance()
                 .getReference();
@@ -340,7 +329,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
             }
         });
 
-        mRecycler.setAdapter(mAdapter);
+        mGroupMemberRecycler.setAdapter(mAdapter);
 
 
 

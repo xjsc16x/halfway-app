@@ -43,6 +43,8 @@
     <string name="date_format">mm/dd/yy</string>
     <string name="change_date">Change Date</string>
     <string name="update_location">Update Location</string>
+    <string name="place_name">Place Name</string>
+    <string name="place_address">Place Address</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_basic">BasicActivity</string>
