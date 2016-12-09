@@ -13,9 +13,9 @@ public class Location {
 
     public Location() {}
 
-    public Location(double latitude, double longtitude) {
+    public Location(double latitude, double longitude) {
         this.latitude = latitude;
-        this.longitude = longtitude;
+        this.longitude = longitude;
     }
 
     @Override

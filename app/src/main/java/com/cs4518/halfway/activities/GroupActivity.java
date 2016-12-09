@@ -155,15 +155,13 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                                     GroupMember currentMember = dataSnapshot.getValue(GroupMember.class);
-                                                    double latitude = currentMember.latitude;
-                                                    double longitude = currentMember.longitude;
-                                                    if (latitude == 0 && longitude == 0) {
+                                                    Location location = currentMember.location;
+                                                    if (location.latitude == 0 && location.longitude == 0) {
                                                         String text = "Set your location coordinates";
                                                         locationText.setHint(text);
                                                     }
                                                     else {
-                                                        String coordinates = latitude + ", " + longitude;
-                                                        locationText.setText(coordinates);
+                                                        locationText.setText(currentMember.location.toString());
                                                     }
                                                 }
 
@@ -188,9 +186,11 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                             // TODO: Error checking
                             String location = locationText.getText().toString();
                             String[] locationValues = location.split("[ ,]+");
-                            mDatabase.child("group-members").child(groupId).child(username).child("latitude")
+                            mDatabase.child("group-members").child(groupId).
+                                    child(username).child("location").child("latitude")
                                     .setValue(Double.parseDouble(locationValues[0]));
-                            mDatabase.child("group-members").child(groupId).child(username).child("longitude")
+                            mDatabase.child("group-members").child(groupId).
+                                    child(username).child("location").child("longitude")
                                     .setValue(Double.parseDouble(locationValues[1]));
 
                         }
