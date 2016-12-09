@@ -99,14 +99,6 @@
         android:textColor="@color/white"/>
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/buttonEditProfile"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:text="@string/edit_profile"
-        android:textColor="@color/white"/>
-
-    <android.support.v7.widget.AppCompatButton
         android:id="@+id/buttonLogout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

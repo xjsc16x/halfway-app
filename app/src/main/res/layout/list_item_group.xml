@@ -16,29 +16,32 @@
 
     <TextView
         android:id="@+id/group_name"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:hint="@string/group_name"
-        android:textSize="10pt"
-        android:layout_marginStart="15dp" />
+        android:gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="10pt" />
 
     <TextView
         android:id="@+id/group_date"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/meeting_date"
         android:layout_marginTop="5dp"
-        android:layout_marginStart="15dp"
+        android:gravity="center_horizontal"
+        android:textColor="@color/white"
         android:textSize="8pt"/>
 
     <TextView
         android:id="@+id/group_time"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/meeting_time"
         android:layout_marginTop="5dp"
-        android:layout_marginStart="15dp"
+        android:gravity="center_horizontal"
+        android:textColor="@color/white"
         android:textSize="8pt"/>
 
     </LinearLayout>

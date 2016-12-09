@@ -42,7 +42,9 @@
     <string name="meeting_date">Date of Meeting</string>
     <string name="date_format">mm/dd/yy</string>
     <string name="change_date">Change Date</string>
+    <string name="update_location">Update Location</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_basic">BasicActivity</string>
 
 </resources>

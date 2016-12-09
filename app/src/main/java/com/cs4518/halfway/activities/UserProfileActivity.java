@@ -34,7 +34,6 @@ public class UserProfileActivity extends AppCompatActivity {
     private Button _createGroupBtn;
     private Button _logoutButton;
     private TextView _emailText;
-    private Button _editProfileButton;
     private TextView _usernameText;
     private TextView _nameText;
     private Button _myGroupsButton;
@@ -46,7 +45,6 @@ public class UserProfileActivity extends AppCompatActivity {
     private FirebaseUser user;
     private DatabaseReference mDatabase;
 
-    private ChildEventListener userListener;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
@@ -94,7 +92,6 @@ public class UserProfileActivity extends AppCompatActivity {
 
         _logoutButton = (Button) findViewById(R.id.buttonLogout);
         _emailText = (TextView) findViewById(R.id.user_email);
-        _editProfileButton = (Button) findViewById(R.id.buttonEditProfile);
         _nameText = (TextView) findViewById(R.id.user_name);
         _usernameText = (TextView) findViewById(R.id.user_username);
         _createGroupBtn = (Button) findViewById(R.id.buttonCreateGroup);
@@ -107,14 +104,6 @@ public class UserProfileActivity extends AppCompatActivity {
                 firebaseAuth.signOut();
                 finish();
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-            }
-        });
-
-
-        _editProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), EditProfileActivity.class));
             }
         });
 
