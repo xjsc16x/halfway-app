@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,7 +61,7 @@ public class LoginControllerTest {
     }
 
     @Test
-    public void testLogin() throws Exception {
+    public void testSuccessfulLogin() throws Exception {
         // Attempts to log-in and recieve authentication from Firebase.
         controller.login();
         verify(successfulLoginActivity).showProgressDialog();
@@ -81,5 +82,22 @@ public class LoginControllerTest {
         verify(failedLoginActivity).stopProgressDialog();
         verify(failedLoginActivity).showFailedToLoginToast();
         Mockito.verify(failedLoginActivity, never()).finish(); // Activity shouldn't have been called to finish
+    }
+
+    @Test
+    public void testInvalidLogin() throws Exception {
+        // Attempts a log-in with an email that doesn't resemble an email address
+        LoginActivity act = Mockito.mock(LoginActivity.class);
+        when(act.getEmailText()).thenReturn("notAnEmail");
+        when(act.getPasswordText()).thenReturn("password");
+        LoginController log = new LoginController(act);
+        log.login();
+
+        verify(act).showFailedToLoginToast();
+        // verify(act, atLeastOnce()).setEmailErrorText();
+        // Above can't be tested until externalized strings
+        verify(act, never()).showProgressDialog();
+        verify(act, never()).finish();
+
     }
 }
