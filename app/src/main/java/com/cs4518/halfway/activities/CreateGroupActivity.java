@@ -215,16 +215,16 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked) {
-                    if (mGoogleApiClient != null) {
-                        mGoogleApiClient.connect();
+                    try {
+                        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                                mGoogleApiClient);
+                        if (mLastLocation != null) {
+                            _locationText.setText(mLastLocation.getLatitude() + ", "
+                                    + mLastLocation.getLongitude());
+                        }
                     }
-                    else {
-                        Toast.makeText(getApplicationContext(), "Not connected...", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else{
-                    if (mGoogleApiClient != null) {
-                        mGoogleApiClient.disconnect();
+                    catch (SecurityException e) {
+                        // permission denied
                     }
                 }
             }
@@ -303,14 +303,18 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
     @Override
     protected void onStart() {
         super.onStart();
-
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
         firebaseAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
         }
@@ -384,27 +388,12 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    turnOnLocation();
+//                    _useLocationToggle.setChecked(true);
                 } else {
                     _useLocationToggle.setChecked(false);
                 }
                 return;
             }
-        }
-    }
-
-    private void turnOnLocation() {
-        try {
-            _useLocationToggle.setChecked(true);
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-            if (mLastLocation != null) {
-                _locationText.setText(mLastLocation.getLatitude() + ", "
-                        + mLastLocation.getLongitude());
-            }
-        }
-        catch (SecurityException e) {
-            // permission denied
         }
     }
 
@@ -419,9 +408,9 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
                     MY_PERMISSIONS_REQUEST_FINE_LOCATION);
 
         }
-        else {
-            turnOnLocation();
-        }
+//        else {
+//            //_useLocationToggle.setChecked(true);
+//        }
     }
 
     @Override

@@ -455,10 +455,9 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-
         }
         else {
-            useLocationToggle.setChecked(true);
+            //useLocationToggle.setChecked(true);
         }
     }
 
@@ -470,7 +469,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    useLocationToggle.setChecked(true);
+                    //useLocationToggle.setChecked(true);
                 } else {
                     useLocationToggle.setChecked(false);
                 }
