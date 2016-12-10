@@ -8,10 +8,12 @@ import com.cs4518.halfway.activities.LoginActivity;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,15 +30,17 @@ public class LoginControllerTest {
     LoginController controller;
 
     @Mock
-    private LoginActivity activity;
+    private LoginActivity successfulLoginActivity;
+    @Mock
+    private LoginActivity failedLoginActivity;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        when(activity.getEmailText()).thenReturn(EMAIL);
-        when(activity.getPasswordText()).thenReturn(PASSWORD);
-        when(activity.getApplicationContext()).thenReturn(InstrumentationRegistry.getTargetContext());
-        controller = new LoginController(activity);
+        when(successfulLoginActivity.getEmailText()).thenReturn(EMAIL);
+        when(successfulLoginActivity.getPasswordText()).thenReturn(PASSWORD);
+        when(successfulLoginActivity.getApplicationContext()).thenReturn(InstrumentationRegistry.getTargetContext());
+        controller = new LoginController(successfulLoginActivity);
     }
 
     @Test
@@ -49,20 +53,33 @@ public class LoginControllerTest {
     @Test
     public void testSetupActuallyWorked() throws Exception {
         // Simply tests that I set-up everything and that mocking is working
-        assertNotNull(activity);
+        assertNotNull(successfulLoginActivity);
         assertNotNull(controller);
-        assertEquals(EMAIL, activity.getEmailText());
-        assertEquals(PASSWORD, activity.getPasswordText());
+        assertEquals(EMAIL, successfulLoginActivity.getEmailText());
+        assertEquals(PASSWORD, successfulLoginActivity.getPasswordText());
     }
 
     @Test
     public void testLogin() throws Exception {
         // Attempts to log-in and recieve authentication from Firebase.
         controller.login();
-        verify(activity).showProgressDialog();
+        verify(successfulLoginActivity).showProgressDialog();
         Thread.sleep(3000);
-        verify(activity).stopProgressDialog();
-        verify(activity).finish();
+        verify(successfulLoginActivity).stopProgressDialog();
+        verify(successfulLoginActivity).finish();
     }
 
+    @Test
+    public void testFailedLogin() throws Exception {
+        // Attempts to log-in and fails.
+        when(failedLoginActivity.getEmailText()).thenReturn(EMAIL);
+        when(failedLoginActivity.getPasswordText()).thenReturn(PASSWORD + "b");
+        LoginController l = new LoginController(failedLoginActivity);
+        l.login();
+        verify(failedLoginActivity).showProgressDialog();
+        Thread.sleep(3000);
+        verify(failedLoginActivity).stopProgressDialog();
+        verify(failedLoginActivity).showFailedToLoginToast();
+        Mockito.verify(failedLoginActivity, never()).finish(); // Activity shouldn't have been called to finish
+    }
 }
