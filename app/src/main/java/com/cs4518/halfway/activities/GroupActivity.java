@@ -425,16 +425,16 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked) {
-                    if (mGoogleApiClient != null) {
-                        mGoogleApiClient.connect();
+                    try {
+                        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                                mGoogleApiClient);
+                        if (mLastLocation != null) {
+                            locationText.setText(mLastLocation.getLatitude() + ", "
+                                    + mLastLocation.getLongitude());
+                        }
                     }
-                    else {
-                        Toast.makeText(getApplicationContext(), "Not connected...", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else{
-                    if (mGoogleApiClient != null) {
-                        mGoogleApiClient.disconnect();
+                    catch (SecurityException e) {
+                        // permission denied
                     }
                 }
             }
@@ -458,7 +458,7 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
 
         }
         else {
-            turnOnLocation();
+            useLocationToggle.setChecked(true);
         }
     }
 
@@ -470,27 +470,12 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    turnOnLocation();
+                    useLocationToggle.setChecked(true);
                 } else {
                     useLocationToggle.setChecked(false);
                 }
                 return;
             }
-        }
-    }
-
-    private void turnOnLocation() {
-        try {
-            useLocationToggle.setChecked(true);
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-            if (mLastLocation != null) {
-                locationText.setText(mLastLocation.getLatitude() + ", "
-                        + mLastLocation.getLongitude());
-            }
-        }
-        catch (SecurityException e) {
-            // permission denied
         }
     }
 
@@ -504,12 +489,18 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     @Override
     protected void onStart() {
         super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
         firebaseAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
         if (mAuthListener != null) {
             firebaseAuth.removeAuthStateListener(mAuthListener);
         }
