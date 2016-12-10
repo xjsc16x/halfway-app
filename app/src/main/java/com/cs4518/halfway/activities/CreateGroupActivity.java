@@ -3,14 +3,16 @@ package com.cs4518.halfway.activities;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -30,6 +32,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.cs4518.halfway.R;
+import com.cs4518.halfway.model.Constants;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.Invitation;
 import com.cs4518.halfway.model.GroupMember;
@@ -37,6 +40,7 @@ import com.cs4518.halfway.model.User;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
@@ -47,22 +51,26 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
 public class CreateGroupActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks, com.google.android.gms.location.LocationListener {
+        GoogleApiClient.ConnectionCallbacks, LocationListener {
     private static final String GRP = "groups";
     private static final String USR = "users";
     private static final String INV = "invitations";
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 10;
-    private static final long GPS_UPDATE_DELAY = 5000;
+    private static final long INTERVAL = 300000; // 5 minute location requests
     private static final String TAG = "CreateGroupActivity";
 
     private DatabaseReference mDatabase;
@@ -95,9 +103,11 @@ public class CreateGroupActivity extends AppCompatActivity
     private int minute;
     private int hour;
     private int year, month, day;
+    private boolean mAddressRequested;
+    private String mAddressOutput;
 
     private LocationRequest mLocationRequest;
-
+    private AddressResultReceiver mResultReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,8 +123,9 @@ public class CreateGroupActivity extends AppCompatActivity
         month = c.get(Calendar.MONTH);
         day = c.get(Calendar.DAY_OF_MONTH);
 
-        buildGoogleApiClient();
+        mResultReceiver = new AddressResultReceiver(new Handler());
 
+        buildGoogleApiClient();
         firebaseAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -141,15 +152,13 @@ public class CreateGroupActivity extends AppCompatActivity
                         @Override
                         public void onClick(View v) {
                             String groupName = _groupNameText.getText().toString();
-                            com.cs4518.halfway.model.Location location =
-                                    makeLocation(_locationText.getText().toString());
+                            String location = _locationText.getText().toString();
 
                             if (validate()) {
-                                makeNewGroup(groupName, currentUser, location);
+                                makeNewGroup(groupName, currentUser, makeLocation(location));
                                 sendInvitations(currentUser.name, groupName);
                                 Intent intent = new Intent(getApplicationContext(), GroupActivity.class);
                                 intent.putExtra("GROUP_ID", groupId);
-                                intent.putExtra("USE_LOCATION", _useLocationToggle.isChecked());
                                 startActivity(intent);
                                 finish();
                             } else {
@@ -201,7 +210,8 @@ public class CreateGroupActivity extends AppCompatActivity
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(5000);
+        mLocationRequest.setInterval(INTERVAL);
+
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -214,11 +224,18 @@ public class CreateGroupActivity extends AppCompatActivity
     }
 
     private com.cs4518.halfway.model.Location makeLocation(String locationString) {
-        String[] locationValues = locationString.split("[ ,]+");
-        double latitude = Double.parseDouble(locationValues[0]);
-        double longitude = Double.parseDouble(locationValues[1]);
-
-        return new com.cs4518.halfway.model.Location(latitude, longitude);
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses;
+        try {
+            addresses = geocoder.getFromLocationName(locationString, 1);
+            if (addresses.size() > 0) {
+                double latitude = addresses.get(0).getLatitude();
+                double longitude = addresses.get(0).getLongitude();
+                return new com.cs4518.halfway.model.Location(latitude, longitude);
+            }
+        }
+        catch (IOException e) {}
+        return null;
     }
 
     private void configureToggleButton() {
@@ -231,7 +248,6 @@ public class CreateGroupActivity extends AppCompatActivity
                 }
                 else {
                     stopLocationUpdates();
-                    Log.d(TAG, "STOPPED");
                 }
             }
         });
@@ -247,6 +263,29 @@ public class CreateGroupActivity extends AppCompatActivity
         }
     }
 
+    protected void startIntentService() {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+        startService(intent);
+    }
+
+    class AddressResultReceiver extends ResultReceiver {
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+
+            // Display the address string
+            // or an error message sent from the intent service.
+            mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+            _locationText.setText(mAddressOutput);
+
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -254,7 +293,6 @@ public class CreateGroupActivity extends AppCompatActivity
             startLocationUpdates();
         }
     }
-
 
     @Override
     protected void onPause() {
@@ -406,8 +444,8 @@ public class CreateGroupActivity extends AppCompatActivity
             _groupNameText.setError(null);
         }
 
-        if (TextUtils.isEmpty(location)) {
-            _locationText.setError("Enter a location");
+        if (TextUtils.isEmpty(location) || makeLocation(location) == null) {
+            _locationText.setError("Enter a valid address");
             valid = false;
         } else {
             _locationText.setError(null);
@@ -462,10 +500,11 @@ public class CreateGroupActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        Log.d(TAG, "CALLED");
         if (mLastLocation != null) {
-            _locationText.setText(mLastLocation.getLatitude() + ", "
-                    + mLastLocation.getLongitude());
+            if (!Geocoder.isPresent()) {
+                return;
+            }
+            startIntentService();
         }
     }
 

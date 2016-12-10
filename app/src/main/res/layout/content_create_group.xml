@@ -72,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:inputType="textCapWords"
                     android:textColor="@color/white"
-                    android:hint="Add your location as coordinates" />
+                    android:hint="@string/enter_address" />
             </android.support.design.widget.TextInputLayout>
 
             <RelativeLayout

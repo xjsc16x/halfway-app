@@ -45,6 +45,12 @@
     <string name="update_location">Update Location</string>
     <string name="place_name">Place Name</string>
     <string name="place_address">Place Address</string>
+    <string name="service_not_available">Service not available</string>
+    <string name="invalid_lat_long_used">Invalid values</string>
+    <string name="no_address_found">No address found</string>
+    <string name="address_found">Address found</string>
+    <string name="no_location_data_provided">No location data provided</string>
+    <string name="enter_address">Enter an address</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_basic">BasicActivity</string>
