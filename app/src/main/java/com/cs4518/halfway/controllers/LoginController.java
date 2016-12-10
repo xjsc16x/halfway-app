@@ -52,8 +52,9 @@ public class LoginController implements View.OnClickListener {
         String email = activity.getEmailText();
         String password = activity.getPasswordText();
 
+        // Line below was just changed, should be Listener(activity, new on...)
         firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "Login attempt completed");
@@ -71,7 +72,6 @@ public class LoginController implements View.OnClickListener {
                     }
                 });
     }
-
 
 
     /**
