@@ -37,6 +37,7 @@ import com.cs4518.halfway.model.User;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,12 +53,17 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CreateGroupActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
+
+public class CreateGroupActivity extends AppCompatActivity
+        implements GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks, com.google.android.gms.location.LocationListener {
     private static final String GRP = "groups";
     private static final String USR = "users";
     private static final String INV = "invitations";
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 10;
     private static final long GPS_UPDATE_DELAY = 5000;
+    private static final String TAG = "CreateGroupActivity";
 
     private DatabaseReference mDatabase;
     private FirebaseAuth firebaseAuth;
@@ -89,6 +95,8 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
     private int minute;
     private int hour;
     private int year, month, day;
+
+    private LocationRequest mLocationRequest;
 
 
     @Override
@@ -190,6 +198,10 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
         });
 
         configureToggleButton();
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(5000);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -215,20 +227,44 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked) {
-                    try {
-                        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                                mGoogleApiClient);
-                        if (mLastLocation != null) {
-                            _locationText.setText(mLastLocation.getLatitude() + ", "
-                                    + mLastLocation.getLongitude());
-                        }
-                    }
-                    catch (SecurityException e) {
-                        // permission denied
-                    }
+                    startLocationUpdates();
+                }
+                else {
+                    stopLocationUpdates();
+                    Log.d(TAG, "STOPPED");
                 }
             }
         });
+    }
+
+    protected void startLocationUpdates() {
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                    mLocationRequest, this);
+        }
+        catch (SecurityException e) {
+            // permission denied
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mGoogleApiClient.isConnected() && _useLocationToggle.isChecked()) {
+            startLocationUpdates();
+        }
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
     }
 
     public void openTimeDialog() {
@@ -422,4 +458,15 @@ public class CreateGroupActivity extends AppCompatActivity implements GoogleApiC
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Toast.makeText(this, "Failed to connect...", Toast.LENGTH_SHORT).show();
     }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+        Log.d(TAG, "CALLED");
+        if (mLastLocation != null) {
+            _locationText.setText(mLastLocation.getLatitude() + ", "
+                    + mLastLocation.getLongitude());
+        }
+    }
+
 }
