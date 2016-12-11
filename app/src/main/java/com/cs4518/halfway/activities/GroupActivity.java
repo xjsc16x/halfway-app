@@ -229,19 +229,17 @@ public class GroupActivity extends AppCompatActivity
         memberQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "onChildAdded");
                 requestQueue.add(jsonObjectRequest);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "onChildChanged");
                 requestQueue.add(jsonObjectRequest);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
+                requestQueue.add(jsonObjectRequest);
             }
 
             @Override
