@@ -125,8 +125,8 @@ public class GroupActivity extends AppCompatActivity
     private Group currentGroup;
 
     private RequestQueue requestQueue;
-    private ArrayList<String> placeIDs = new ArrayList<>();
-    private ArrayList<Place> placesList = new ArrayList<>();
+    private ArrayList<String> placeIDs;
+    private ArrayList<Place> placesList;
     JsonObjectRequest jsonObjectRequest;
 
     private int hour;
@@ -164,12 +164,17 @@ public class GroupActivity extends AppCompatActivity
         mPlaceRecycler.setLayoutManager(mLayoutManager);
 
         String getUrl = "http://halfway-server.herokuapp.com/api/placeids/" + groupId;
+        mPlaceAdapter = new PlaceAdapter(new ArrayList<Place>());
+        mPlaceRecycler.setAdapter(mPlaceAdapter);
+
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, getUrl,
                 new Response.Listener<JSONObject>(){
                     @Override
                     public void onResponse(JSONObject response){
                         try {
                             JSONArray jsonArray = response.getJSONArray("results");
+                            placeIDs = new ArrayList<>();
+                            placesList = new ArrayList<>();
                             for(int i = 0; i < jsonArray.length();i++){
                                 String nextPlaceID = jsonArray.getString(i);
                                 placeIDs.add(nextPlaceID);
@@ -187,14 +192,12 @@ public class GroupActivity extends AppCompatActivity
                                                     Log.e(TAG, "Place not found");
                                                 }
 
+                                                mPlaceAdapter.swap(placesList);
                                                 places.release();
                                             }
                                         });
 
                             }
-                            mPlaceAdapter = new PlaceAdapter(placesList);
-                            mPlaceAdapter.swap(placesList);
-                            mPlaceRecycler.setAdapter(mPlaceAdapter);
                         }
                         catch(JSONException e){
                             e.printStackTrace();
@@ -264,7 +267,6 @@ public class GroupActivity extends AppCompatActivity
                                                         locationText.setHint(text);
                                                     }
                                                     else {
-                                                        // TODO: Pick either Firebase or android location because overwrites
                                                         startIntentService(0, location.latitude, location.longitude);
                                                     }
                                                 }
