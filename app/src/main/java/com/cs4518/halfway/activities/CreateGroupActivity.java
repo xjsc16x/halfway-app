@@ -164,8 +164,8 @@ public class CreateGroupActivity extends AppCompatActivity
                                 sendInvitations(currentUser.name, groupName);
                                 Intent intent = new Intent(getApplicationContext(), GroupActivity.class);
                                 intent.putExtra("GROUP_ID", groupId);
-                                startActivity(intent);
                                 finish();
+                                startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(),
                                         "Failed to create group",

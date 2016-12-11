@@ -43,4 +43,15 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
     public int getItemCount() {
         return mDataset.size();
     }
+
+    public void swap(ArrayList<Place> list){
+        if (mDataset != null) {
+            mDataset.clear();
+            mDataset.addAll(list);
+        }
+        else {
+            mDataset = list;
+        }
+        notifyDataSetChanged();
+    }
 }

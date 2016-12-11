@@ -127,6 +127,7 @@ public class GroupActivity extends AppCompatActivity
     private RequestQueue requestQueue;
     private ArrayList<String> placeIDs = new ArrayList<>();
     private ArrayList<Place> placesList = new ArrayList<>();
+    JsonObjectRequest jsonObjectRequest;
 
     private int hour;
     private int minute;
@@ -163,7 +164,7 @@ public class GroupActivity extends AppCompatActivity
         mPlaceRecycler.setLayoutManager(mLayoutManager);
 
         String getUrl = "http://halfway-server.herokuapp.com/api/placeids/" + groupId;
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, getUrl,
+        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, getUrl,
                 new Response.Listener<JSONObject>(){
                     @Override
                     public void onResponse(JSONObject response){
@@ -185,14 +186,15 @@ public class GroupActivity extends AppCompatActivity
                                                 } else {
                                                     Log.e(TAG, "Place not found");
                                                 }
-                                                mPlaceAdapter = new PlaceAdapter(placesList);
-                                                mPlaceRecycler.setAdapter(mPlaceAdapter);
+
                                                 places.release();
                                             }
                                         });
 
-
                             }
+                            mPlaceAdapter = new PlaceAdapter(placesList);
+                            mPlaceAdapter.swap(placesList);
+                            mPlaceRecycler.setAdapter(mPlaceAdapter);
                         }
                         catch(JSONException e){
                             e.printStackTrace();
@@ -289,6 +291,7 @@ public class GroupActivity extends AppCompatActivity
                             if (location != null) {
                                 mDatabase.child("group-members").child(groupId).
                                         child(username).child("location").setValue(location);
+                                requestQueue.add(jsonObjectRequest);
                             }
                             else {
                                 Toast.makeText(getApplicationContext(),
