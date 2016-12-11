@@ -54,6 +54,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -118,7 +119,6 @@ public class GroupActivity extends AppCompatActivity
 
     private String userId;
     private String groupId;
-    private boolean useLocation;
     private User currentUser;
     private String username;
 
@@ -210,7 +210,6 @@ public class GroupActivity extends AppCompatActivity
                         Log.e("VOLLEY", "ERROR RECEIVING RESPONSE");
                     }
                 });
-        requestQueue.add(jsonObjectRequest);
 
         mGroupMemberRecycler = (RecyclerView) findViewById(R.id.member_list);
         mGroupMemberRecycler.setHasFixedSize(true);
@@ -226,6 +225,36 @@ public class GroupActivity extends AppCompatActivity
         // Set up FirebaseRecyclerAdapter with the Query
         final Query memberQuery = mDatabase.child("group-members")
                 .child(groupId);
+
+        memberQuery.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "onChildAdded");
+                requestQueue.add(jsonObjectRequest);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "onChildChanged");
+                requestQueue.add(jsonObjectRequest);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         mAdapter = new FirebaseRecyclerAdapter<GroupMember, MemberViewHolder>
                 (GroupMember.class, R.layout.list_item_member,
                         MemberViewHolder.class, memberQuery) {
@@ -238,10 +267,6 @@ public class GroupActivity extends AppCompatActivity
                 viewHolder.bindMember(memberRef.getKey());
             }
         };
-
-        // TODO: later need to get boolean when navigating from group list
-        // currently only getting extra from CreateGroupActivity
-        useLocation = intent.getBooleanExtra("GET_LOCATION", false);
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -293,7 +318,6 @@ public class GroupActivity extends AppCompatActivity
                             if (location != null) {
                                 mDatabase.child("group-members").child(groupId).
                                         child(username).child("location").setValue(location);
-                                requestQueue.add(jsonObjectRequest);
                             }
                             else {
                                 Toast.makeText(getApplicationContext(),
@@ -342,8 +366,6 @@ public class GroupActivity extends AppCompatActivity
         mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(INTERVAL);
-
-        useLocationToggle.setChecked(useLocation);
 
         memberQuery.addValueEventListener(new ValueEventListener() {
             @Override
@@ -455,6 +477,8 @@ public class GroupActivity extends AppCompatActivity
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked) {
                     startLocationUpdates();
+                    Toast.makeText(getApplicationContext(),
+                            "Update your location now", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     stopLocationUpdates();
