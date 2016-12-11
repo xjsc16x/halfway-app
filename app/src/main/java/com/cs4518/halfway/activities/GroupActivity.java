@@ -5,7 +5,11 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -32,6 +36,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.cs4518.halfway.R;
+import com.cs4518.halfway.model.AddressResultReceiver;
+import com.cs4518.halfway.model.Constants;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.GroupMember;
 import com.cs4518.halfway.model.Location;
@@ -42,11 +48,12 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -61,16 +68,24 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
-public class GroupActivity extends AppCompatActivity implements OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+
+public class GroupActivity extends AppCompatActivity
+        implements OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks, LocationListener{
     private static final String GRP = "groups";
     private static final String TAG = "GroupActivity";
     private static final int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 10;
+    private static final long INTERVAL = 300000; // 5 minute location requests
 
     private TextView groupNameText;
     private EditText locationText;
@@ -93,12 +108,12 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
     private DatabaseReference mDatabase;
 
     private GoogleApiClient mGoogleApiClient;
-    private GoogleApiClient mGoogleGeoApiClient;
     private android.location.Location mLastLocation;
+    private LocationRequest mLocationRequest;
+    private AddressResultReceiver mResultReceiver;
 
     private FirebaseUser user;
 
-    private ChildEventListener groupListener;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     private String userId;
@@ -128,6 +143,14 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         setSupportActionBar(toolbar);
 
         requestQueue = Volley.newRequestQueue(this);
+        mResultReceiver = new AddressResultReceiver(new Handler()) {
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                String mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+                locationText.setText(mAddressOutput);
+            }
+        };
+
         buildGoogleApiClient();
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -235,12 +258,12 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                                                     GroupMember currentMember = dataSnapshot.getValue(GroupMember.class);
                                                     Location location = currentMember.location;
                                                     if (location.latitude == 0 && location.longitude == 0) {
-                                                        String text = "Set your location coordinates";
+                                                        String text = "Set your address";
                                                         locationText.setHint(text);
                                                     }
                                                     else {
                                                         // TODO: Pick either Firebase or android location because overwrites
-                                                        locationText.setText(currentMember.location.toString());
+                                                        startIntentService(0, location.latitude, location.longitude);
                                                     }
                                                 }
 
@@ -262,16 +285,15 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
                     updateLocationButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            // TODO: Error checking
-                            String location = locationText.getText().toString();
-                            String[] locationValues = location.split("[ ,]+");
-                            mDatabase.child("group-members").child(groupId).
-                                    child(username).child("location").child("latitude")
-                                    .setValue(Double.parseDouble(locationValues[0]));
-                            mDatabase.child("group-members").child(groupId).
-                                    child(username).child("location").child("longitude")
-                                    .setValue(Double.parseDouble(locationValues[1]));
-
+                            Location location = makeLocation(locationText.getText().toString());
+                            if (location != null) {
+                                mDatabase.child("group-members").child(groupId).
+                                        child(username).child("location").setValue(location);
+                            }
+                            else {
+                                Toast.makeText(getApplicationContext(),
+                                        "Invalid address", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
                 }
@@ -312,7 +334,9 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         meetingDateText = (TextView) findViewById(R.id.meeting_date);
         updateLocationButton = (Button) findViewById(R.id.btn_update_location);
 
-
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(INTERVAL);
 
         useLocationToggle.setChecked(useLocation);
 
@@ -425,17 +449,10 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if(isChecked) {
-                    try {
-                        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                                mGoogleApiClient);
-                        if (mLastLocation != null) {
-                            locationText.setText(mLastLocation.getLatitude() + ", "
-                                    + mLastLocation.getLongitude());
-                        }
-                    }
-                    catch (SecurityException e) {
-                        // permission denied
-                    }
+                    startLocationUpdates();
+                }
+                else {
+                    stopLocationUpdates();
                 }
             }
         });
@@ -458,6 +475,37 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         }
         else {
             //useLocationToggle.setChecked(true);
+        }
+    }
+
+    protected void startLocationUpdates() {
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                    mLocationRequest, this);
+        }
+        catch (SecurityException e) {
+            // permission denied
+        }
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+    }
+
+    protected void startIntentService(int use_location, double latitude, double longitude) {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        if (use_location == 1) {
+            intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+            startService(intent);
+        }
+        else {
+            android.location.Location newLocation = new android.location.Location("");
+            newLocation.setLatitude(latitude);
+            newLocation.setLongitude(longitude);
+            intent.putExtra(Constants.LOCATION_DATA_EXTRA, newLocation);
+            startService(intent);
         }
     }
 
@@ -513,4 +561,29 @@ public class GroupActivity extends AppCompatActivity implements OnConnectionFail
         }
     }
 
+    @Override
+    public void onLocationChanged(android.location.Location location) {
+        mLastLocation = location;
+        if (mLastLocation != null) {
+            if (!Geocoder.isPresent()) {
+                return;
+            }
+            startIntentService(1, 0, 0);
+        }
+    }
+
+    private com.cs4518.halfway.model.Location makeLocation(String locationString) {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses;
+        try {
+            addresses = geocoder.getFromLocationName(locationString, 1);
+            if (addresses.size() > 0) {
+                double latitude = addresses.get(0).getLatitude();
+                double longitude = addresses.get(0).getLongitude();
+                return new com.cs4518.halfway.model.Location(latitude, longitude);
+            }
+        }
+        catch (IOException e) {}
+        return null;
+    }
 }

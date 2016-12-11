@@ -32,6 +32,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.cs4518.halfway.R;
+import com.cs4518.halfway.model.AddressResultReceiver;
 import com.cs4518.halfway.model.Constants;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.Invitation;
@@ -103,8 +104,6 @@ public class CreateGroupActivity extends AppCompatActivity
     private int minute;
     private int hour;
     private int year, month, day;
-    private boolean mAddressRequested;
-    private String mAddressOutput;
 
     private LocationRequest mLocationRequest;
     private AddressResultReceiver mResultReceiver;
@@ -123,7 +122,13 @@ public class CreateGroupActivity extends AppCompatActivity
         month = c.get(Calendar.MONTH);
         day = c.get(Calendar.DAY_OF_MONTH);
 
-        mResultReceiver = new AddressResultReceiver(new Handler());
+        mResultReceiver = new AddressResultReceiver(new Handler()) {
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                String mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
+                _locationText.setText(mAddressOutput);
+            }
+        };
 
         buildGoogleApiClient();
         firebaseAuth = FirebaseAuth.getInstance();
@@ -270,22 +275,6 @@ public class CreateGroupActivity extends AppCompatActivity
         startService(intent);
     }
 
-    class AddressResultReceiver extends ResultReceiver {
-        public AddressResultReceiver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-
-            // Display the address string
-            // or an error message sent from the intent service.
-            mAddressOutput = resultData.getString(Constants.RESULT_DATA_KEY);
-            _locationText.setText(mAddressOutput);
-
-        }
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -402,7 +391,6 @@ public class CreateGroupActivity extends AppCompatActivity
      */
     private void makeNewGroup(String groupName, User creator, com.cs4518.halfway.model.Location location) {
         groupId = mDatabase.child(GRP).push().getKey();
-        // TODO: Actually use creator's location
         GroupMember creatorMember = new GroupMember(creator.username, location);
         Group group = new Group(groupId, groupName, creatorMember, meetingTime, meetingDate);
         Map<String, Object> groupValues = group.toMap();
@@ -425,7 +413,8 @@ public class CreateGroupActivity extends AppCompatActivity
 
         Map<String, Object> childUpdates = new HashMap<>();
         for (String invitee : invitees) {
-            childUpdates.put("/user-invites/" + invitee + "/" + invitationId, invitationValues);
+            if (!invitee.isEmpty())
+                childUpdates.put("/user-invites/" + invitee + "/" + invitationId, invitationValues);
         }
 
         mDatabase.updateChildren(childUpdates);
