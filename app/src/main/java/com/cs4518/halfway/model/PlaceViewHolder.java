@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.cs4518.halfway.R;
+import com.google.android.gms.location.places.Place;
 
 public class PlaceViewHolder extends RecyclerView.ViewHolder {
     public final TextView placeNameText;
@@ -12,6 +13,13 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
 
     public PlaceViewHolder(View itemView) {
         super(itemView);
+
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
         placeNameText = (TextView) itemView.findViewById(R.id.place_name);
         placeAddressText = (TextView) itemView.findViewById(R.id.place_address);
