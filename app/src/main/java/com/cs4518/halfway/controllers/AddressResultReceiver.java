@@ -1,4 +1,4 @@
-package com.cs4518.halfway.model;
+package com.cs4518.halfway.controllers;
 
 import android.os.Bundle;
 import android.os.Handler;

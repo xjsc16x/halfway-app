@@ -1,4 +1,4 @@
-package com.cs4518.halfway.activities;
+package com.cs4518.halfway.views.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.GroupMember;
-import com.cs4518.halfway.model.MemberViewHolder;
+import com.cs4518.halfway.views.MemberViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;

@@ -1,41 +1,26 @@
-package com.cs4518.halfway.activities;
+package com.cs4518.halfway.views.activities;
 
 /**
  * Created by Silo on 12/3/16.
  */
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.TextView;
 
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
-import com.cs4518.halfway.model.GroupViewHolder;
-import com.cs4518.halfway.model.Invitation;
-import com.cs4518.halfway.model.InvitationViewHolder;
+import com.cs4518.halfway.views.GroupViewHolder;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class GroupListFragment extends Fragment {
     private static final String TAG ="GroupListFragment";

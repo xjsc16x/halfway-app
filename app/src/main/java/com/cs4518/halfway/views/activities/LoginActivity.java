@@ -1,12 +1,10 @@
-package com.cs4518.halfway.activities;
+package com.cs4518.halfway.views.activities;
 
 import com.cs4518.halfway.R;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import android.content.Intent;
 import android.view.View;
@@ -16,10 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cs4518.halfway.controllers.LoginController;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.AuthResult;
 
 /**
  * Activity for login screen. Contains a link to (@link #SignUpActivityUp) activity is user doesn't
@@ -66,7 +60,6 @@ public class LoginActivity extends AppCompatActivity {
             }
 
         });
-
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.cs4518.halfway.model;
+package com.cs4518.halfway.views;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,9 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cs4518.halfway.R;
+import com.cs4518.halfway.views.PlaceViewHolder;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.Places;
-import com.twitter.sdk.android.core.models.TwitterCollection;
 
 import java.util.ArrayList;
 

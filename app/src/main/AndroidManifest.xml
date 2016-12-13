@@ -17,7 +17,7 @@
             android:name=".FetchAddressIntentService"
             android:exported="false" />
 
-        <activity android:name=".activities.UserProfileActivity">
+        <activity android:name=".views.activities.UserProfileActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,31 +26,31 @@
         </activity>
         <!-- <activity android:name=".activities.LoginActivity" android:theme="@style/AppTheme.Purple" /> -->
         <activity
-            android:name=".activities.SignUpActivity"
+            android:name=".views.activities.SignUpActivity"
             android:label="@string/title_activity_sign_up"
             android:theme="@style/AppTheme.Purple" />
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".views.activities.LoginActivity"
             android:label="@string/title_activity_sign_up"
             android:theme="@style/AppTheme.Purple" />
         <activity
-            android:name=".activities.CreateProfileActivity"
+            android:name=".views.activities.CreateProfileActivity"
             android:label="@string/title_activity_create_profile"
             android:theme="@style/AppTheme.Purple" />
         <activity
-            android:name=".activities.CreateGroupActivity"
+            android:name=".views.activities.CreateGroupActivity"
             android:label="@string/title_activity_create_group"
             android:theme="@style/AppTheme.Purple" />
         <activity
-            android:name=".activities.GroupActivity"
+            android:name=".views.activities.GroupActivity"
             android:label="@string/title_activity_group"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".activities.GroupListActivity"
+            android:name=".views.activities.GroupListActivity"
             android:label="@string/title_activity_create_group"
             android:theme="@style/AppTheme.Purple" />
         <activity
-            android:name=".activities.InvitationListActivity"
+            android:name=".views.activities.InvitationListActivity"
             android:label="@string/my_invites"
             android:theme="@style/AppTheme.Purple" />
 
@@ -58,10 +58,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDyBvCTnNb-vFUtkGVme_tTeNhUPApqbic" />
 
-        <activity android:name=".activities.MemberListActivity" />
+        <activity android:name=".views.activities.MemberListActivity" />
 
         <service
-            android:name=".activities.FetchAddressIntentService"
+            android:name=".controllers.FetchAddressIntentService"
             android:exported="false"></service>
     </application>
 

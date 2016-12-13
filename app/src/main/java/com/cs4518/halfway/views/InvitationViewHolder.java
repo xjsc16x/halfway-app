@@ -1,4 +1,4 @@
-package com.cs4518.halfway.model;
+package com.cs4518.halfway.views;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.cs4518.halfway.R;
+import com.cs4518.halfway.model.Invitation;
 
 public class InvitationViewHolder extends RecyclerView.ViewHolder {
     public TextView mCreatorTextView;

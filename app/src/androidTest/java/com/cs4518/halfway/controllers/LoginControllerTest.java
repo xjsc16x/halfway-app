@@ -3,7 +3,7 @@ package com.cs4518.halfway.controllers;
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 
-import com.cs4518.halfway.activities.LoginActivity;
+import com.cs4518.halfway.views.activities.LoginActivity;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +13,6 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -78,7 +77,7 @@ public class LoginControllerTest {
         LoginController l = new LoginController(failedLoginActivity);
         l.login();
         verify(failedLoginActivity).showProgressDialog();
-        Thread.sleep(3000);
+        Thread.sleep(3000); // Giving Auth three seconds to log-in before checking if it worked.
         verify(failedLoginActivity).stopProgressDialog();
         verify(failedLoginActivity).showFailedToLoginToast();
         Mockito.verify(failedLoginActivity, never()).finish(); // Activity shouldn't have been called to finish

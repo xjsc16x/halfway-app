@@ -1,4 +1,4 @@
-package com.cs4518.halfway.activities;
+package com.cs4518.halfway.controllers;
 
 import android.app.IntentService;
 import android.content.Intent;

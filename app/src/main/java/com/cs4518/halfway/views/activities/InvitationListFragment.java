@@ -1,4 +1,4 @@
-package com.cs4518.halfway.activities;
+package com.cs4518.halfway.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +14,7 @@ import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Group;
 import com.cs4518.halfway.model.GroupMember;
 import com.cs4518.halfway.model.Invitation;
-import com.cs4518.halfway.model.InvitationViewHolder;
+import com.cs4518.halfway.views.InvitationViewHolder;
 import com.cs4518.halfway.model.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,7 +25,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Member;
 import java.util.HashMap;
 import java.util.Map;
 

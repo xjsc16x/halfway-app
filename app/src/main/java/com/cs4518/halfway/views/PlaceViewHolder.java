@@ -1,4 +1,4 @@
-package com.cs4518.halfway.model;
+package com.cs4518.halfway.views;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

@@ -1,4 +1,4 @@
-package com.cs4518.halfway.activities;
+package com.cs4518.halfway.views.activities;
 
 /**
  * Created by Silo on 12/3/16.
@@ -9,6 +9,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import com.cs4518.halfway.R;
 
+
+/**
+ * This is a base class for activities which
+ */
 public abstract class SingleFragmentActivity extends AppCompatActivity {
 
     protected abstract Fragment createFragment();

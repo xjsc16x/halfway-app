@@ -1,4 +1,4 @@
-package com.cs4518.halfway.activities;
+package com.cs4518.halfway.views.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;

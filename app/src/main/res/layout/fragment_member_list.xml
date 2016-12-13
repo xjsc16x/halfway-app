@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/fragment_container"
-    tools:context=".activities.MemberListActivity">
+    tools:context=".views.activities.MemberListActivity">
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"

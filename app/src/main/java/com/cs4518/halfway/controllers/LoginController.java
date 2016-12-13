@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 
-import com.cs4518.halfway.activities.LoginActivity;
-import com.cs4518.halfway.activities.UserProfileActivity;
+import com.cs4518.halfway.views.activities.LoginActivity;
+import com.cs4518.halfway.views.activities.UserProfileActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;

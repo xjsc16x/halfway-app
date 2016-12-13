@@ -10,7 +10,7 @@
     android:paddingRight="24dp"
     android:gravity="center_horizontal"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.cs4518.halfway.activities.UserProfileActivity"
+    tools:context=".views.activities.UserProfileActivity"
     tools:showIn="@layout/activity_user_profile">
 
     <LinearLayout
