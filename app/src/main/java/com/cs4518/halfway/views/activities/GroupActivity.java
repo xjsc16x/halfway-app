@@ -79,7 +79,9 @@ import java.util.Map;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
-
+/**
+ * Activity associated with displaying a single Group.
+ */
 public class GroupActivity extends AppCompatActivity
         implements OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks, LocationListener{

@@ -7,12 +7,20 @@ import android.widget.TextView;
 
 import com.cs4518.halfway.R;
 import com.cs4518.halfway.model.Invitation;
+import com.cs4518.halfway.views.activities.InvitationListActivity;
 
+/**
+ * Custom {@link #ViewHolder} for Invitations.
+ *
+ * @see InvitationListActivity
+ * @see Invitation
+ */
 public class InvitationViewHolder extends RecyclerView.ViewHolder {
-    public TextView mCreatorTextView;
-    public TextView mGroupNameTextView;
-    public Button mAcceptButton;
-    public Button mDeclineButton;
+
+    private TextView mCreatorTextView;
+    private TextView mGroupNameTextView;
+    private Button mAcceptButton;
+    private Button mDeclineButton;
 
     public InvitationViewHolder(View itemView) {
         super(itemView);
@@ -23,6 +31,14 @@ public class InvitationViewHolder extends RecyclerView.ViewHolder {
         mDeclineButton = (Button) itemView.findViewById(R.id.btn_decline);
     }
 
+    /**
+     * Updates this view to display the given invitation, and applies the given listeners to the
+     * display as well.
+     *
+     * @param mInvitation          Given invitation to display.
+     * @param acceptClickListener  Listener for the accept button.
+     * @param declineClickListener Listener for the decline button.
+     */
     public void bindInvitation(Invitation mInvitation,
                                View.OnClickListener acceptClickListener,
                                View.OnClickListener declineClickListener) {
