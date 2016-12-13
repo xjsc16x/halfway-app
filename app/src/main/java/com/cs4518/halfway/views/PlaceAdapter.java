@@ -15,10 +15,8 @@ import com.google.android.gms.location.places.Place;
 import java.util.ArrayList;
 
 /**
- * Created by Tiffany on 12/9/2016.
+ * Adapter for
  */
-
-
 public class PlaceAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
     private ArrayList<Place> mDataset;
     private Context context;
@@ -39,6 +37,8 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
 
     @Override
     public void onBindViewHolder(PlaceViewHolder holder, int position) {
+        // When the PlaceViewHolder is bound to a position, this method updates the ViewHolder to
+        // display properly.
         final Place currentPlace = mDataset.get(position);
         holder.placeNameText.setText(currentPlace.getName());
         holder.placeAddressText.setText(currentPlace.getAddress());
@@ -60,12 +60,11 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
         return mDataset.size();
     }
 
-    public void swap(ArrayList<Place> list){
+    public void swap(ArrayList<Place> list) {
         if (mDataset != null) {
             mDataset.clear();
             mDataset.addAll(list);
-        }
-        else {
+        } else {
             mDataset = list;
         }
         notifyDataSetChanged();
